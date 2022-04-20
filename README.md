@@ -6,5 +6,5 @@
 主要对一些常用ADB命令封装成一个应用，方便在进行Android开发时进行调试，目前在Windows和Mac OS可以运行，Linux上待验证，支持一些常用ADB命令以及文件管理，并且支持拖拽文件进行文件传输和安装APK。
 
 ### 演示
-![alt screenshot1](https://github.com/EaniaHuui/android_tool/blob/master/screenshot/screenshot1.gif)
-![alt screenshot2](https://github.com/EaniaHuui/android_tool/blob/master/screenshot/screenshot2.gif)
+![alt screenshot1](https://github.com/EaniaHuui/android_tool/blob/main/screenshot/screenshot1.gif)
+![alt screenshot2](https://github.com/EaniaHuui/android_tool/blob/main/screenshot/screenshot2.gif)

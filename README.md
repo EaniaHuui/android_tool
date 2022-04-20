@@ -8,3 +8,7 @@
 ### 演示
 ![alt screenshot1](https://github.com/EaniaHuui/android_tool/blob/main/screenshot/screenshot1.gif)
 ![alt screenshot2](https://github.com/EaniaHuui/android_tool/blob/main/screenshot/screenshot2.gif)
+
+### 下载
+Mac：[AndroidADBTool_Mac](https://github.com/EaniaHuui/android_tool/releases/download/1.0.0/AndroidADBTool_Mac.zip)
+Windows：[AndroidADBTool_Win](https://github.com/EaniaHuui/android_tool/releases/download/1.0.0/AndroidADBTool_Win.zip)

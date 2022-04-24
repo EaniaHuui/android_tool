@@ -46,17 +46,8 @@ class _MainPageState extends BasePage<MainPage, MainViewModel>
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 20),
-              menuView(
-                "设备",
-                "未连接设备",
-                viewModel.devicesViewModel,
-                () {
-                  viewModel.getDeviceList();
-                },
-              ),
-              menuView("调试应用", "未选择调试应用", viewModel.appsViewModel, () {
-                viewModel.getInstalledApp(viewModel.deviceId);
-              }),
+              devicesView(),
+              packageNameView(context),
               TabBar(
                 tabs: const [
                   Tab(text: "功能"),
@@ -105,26 +96,82 @@ class _MainPageState extends BasePage<MainPage, MainViewModel>
     );
   }
 
-  Widget menuView(String title, String menuTip, PopUpMenuButtonViewModel vm,
-      Function refresh) {
+  Widget devicesView() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: <Widget>[
-          Text(title),
+          const TextView("设备"),
           const SizedBox(
             width: 10,
           ),
           PopUpMenuButton(
-            viewModel: vm,
-            menuTip: menuTip,
+            viewModel: viewModel.devicesViewModel,
+            menuTip: "未连接设备",
           ),
           const SizedBox(
             width: 10,
           ),
           InkWell(
             onTap: () {
-              refresh();
+              viewModel.getDeviceList();
+            },
+            child: const Icon(
+              Icons.refresh,
+              color: Colors.black38,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget packageNameView(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          const TextView("调试应用"),
+          const SizedBox(
+            width: 10,
+            height: 30,
+          ),
+          InkWell(
+            onTap: () {
+              viewModel.packageSelect(context);
+            },
+            child: Container(
+              alignment: Alignment.center,
+              height: 33,
+              child: Row(
+                children: [
+                  Selector<MainViewModel, String>(
+                    selector: (context, viewModel) => viewModel.packageName,
+                    builder: (context, packageName, child) {
+                      return TextView(
+                        packageName.isEmpty ? "未选择调试应用" : packageName,
+                        color: const Color(0xFF666666),
+                      );
+                    },
+                  ),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  const Icon(
+                    Icons.arrow_drop_down,
+                    color: Color(0xFF666666),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(
+            width: 10,
+          ),
+          InkWell(
+            onTap: () {
+              viewModel.getInstalledApp(viewModel.deviceId);
             },
             child: const Icon(
               Icons.refresh,

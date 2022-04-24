@@ -80,9 +80,9 @@ class _FeaturePageState extends BasePage<FeaturePage, FeatureViewModel> {
                   buttonView("查看应用安装路径", () {
                     viewModel.getAppInstallPath();
                   }),
-                  Expanded(
-                    child: Container(),
-                  ),
+                  buttonView("保存应用APK到电脑", () {
+                    viewModel.saveAppApk();
+                  }),
                 ],
               ),
               const SizedBox(height: 20),
@@ -131,7 +131,10 @@ class _FeaturePageState extends BasePage<FeaturePage, FeatureViewModel> {
                   buttonView("重启手机", () {
                     viewModel.reboot();
                   }),
-                  Expanded(flex: 2, child: Container()),
+                  buttonView("查看系统属性", () {
+                    viewModel.getSystemProperty();
+                  }),
+                  Expanded(child: Container()),
                 ],
               ),
               const SizedBox(height: 20),

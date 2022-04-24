@@ -1,8 +1,5 @@
-import 'dart:async';
-
 import 'package:android_tool/widget/text_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class ResultDialog extends StatefulWidget {
   final String? title;
@@ -39,15 +36,12 @@ class _ResultDialogState extends State<ResultDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: TextView(widget.title ?? "提示"),
-      content: SelectableText(
+      content: SelectableTextView(
         widget.isSuccess != null
             ? widget.isSuccess!
             ? "操作成功"
             : "操作失败"
             : widget.content ?? "",
-        style: const TextStyle(
-          color: Color(0xFF383838),
-        ),
       ),
       actions: <Widget>[
         TextButton(

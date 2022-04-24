@@ -27,3 +27,29 @@ class TextView extends StatelessWidget {
     );
   }
 }
+class SelectableTextView extends StatelessWidget {
+  const SelectableTextView(
+    this.text, {
+    Key? key,
+    this.color,
+    this.fontSize,
+    this.textAlign,
+  }) : super(key: key);
+
+  final String text;
+  final Color? color;
+  final double? fontSize;
+  final TextAlign? textAlign;
+
+  @override
+  Widget build(BuildContext context) {
+    return SelectableText(
+      text,
+      textAlign: textAlign,
+      style: TextStyle(
+        color: color ?? const Color(0xFF383838),
+        fontSize: fontSize,
+      ),
+    );
+  }
+}

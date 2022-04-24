@@ -2,10 +2,12 @@ import 'dart:io';
 
 import 'package:android_tool/page/common/app.dart';
 import 'package:android_tool/page/common/base_view_model.dart';
+import 'package:android_tool/widget/list_filter_dialog.dart';
 import 'package:android_tool/widget/pop_up_menu_button.dart';
 import 'package:archive/archive_io.dart';
 import 'package:desktop_drop/src/drop_target.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:process_run/shell.dart';
 
@@ -14,8 +16,12 @@ import 'devices_model.dart';
 class MainViewModel extends BaseViewModel {
   PopUpMenuButtonViewModel<DevicesModel> devicesViewModel =
       PopUpMenuButtonViewModel();
-  PopUpMenuButtonViewModel<PopUpMenuItem> appsViewModel =
-      PopUpMenuButtonViewModel();
+
+  ListFilterController packageNameController =
+      ListFilterController();
+
+  List<String> packageNameList = [];
+  String packageName = "";
 
   MainViewModel(context) : super(context) {
     devicesViewModel.addListener(() {
@@ -23,9 +29,6 @@ class MainViewModel extends BaseViewModel {
         App().setDeviceId(deviceId);
         getInstalledApp(deviceId);
       }
-    });
-    appsViewModel.addListener(() {
-      App().setPackageName(packageName);
     });
     App().eventBus.on<String>().listen((event) {
       if (event == "refresh") {
@@ -35,8 +38,6 @@ class MainViewModel extends BaseViewModel {
   }
 
   String get deviceId => devicesViewModel.selectValue?.id ?? "";
-
-  String get packageName => appsViewModel.selectValue?.menuItemTitle ?? "";
 
   init() async {
     await checkAdb();
@@ -184,27 +185,45 @@ class MainViewModel extends BaseViewModel {
         await execAdb(['-s', devices, 'shell', 'pm', 'list', 'packages', '-3']);
     if (installedApp == null) return;
     var outLines = installedApp.outLines;
-    List<PopUpMenuItem> list = outLines.map((e) {
-      return PopUpMenuItem(e.replaceAll("package:", ""));
+    packageNameList = outLines.map((e) {
+      return e.replaceAll("package:", "");
     }).toList();
-    if (list.isNotEmpty) {
+    packageNameList.sort((a, b) => a.compareTo(b));
+    if (packageNameList.isNotEmpty) {
       App().getPackageName().then((value) {
         if (value.isNotEmpty) {
-          appsViewModel.selectValue = list.firstWhere(
-              (element) => element.menuItemTitle == value,
-              orElse: () => list.first);
+          packageName = packageNameList.firstWhere(
+              (element) => element == value,
+              orElse: () => packageNameList.first);
         } else {
-          appsViewModel.selectValue = list.first;
+          packageName = packageNameList.first;
         }
       });
     }
-    appsViewModel.list = list;
   }
 
   // void getClipboardText() async {
   //   var clipboardText = await execAdb(['shell', 'am', 'broadcast', '-a', 'clipper.get']);
   //   print(clipboardText.outLines);
   // }
+
+  /// 选择调试应用
+  packageSelect(BuildContext context) async {
+    if (packageNameList.isEmpty) {
+      return;
+    }
+    packageNameController.show(
+      context,
+      packageNameList,
+      packageName,
+      itemClickCallback: (context, value) {
+        packageName = value;
+        App().setPackageName(packageName);
+        notifyListeners();
+        Navigator.of(context).pop();
+      },
+    );
+  }
 
   void onDragDone(DropDoneDetails details) {
     var files = details.files;
@@ -221,7 +240,7 @@ class MainViewModel extends BaseViewModel {
   void clearData() {
     devicesViewModel.selectValue = null;
     devicesViewModel.list.clear();
-    appsViewModel.selectValue = null;
-    appsViewModel.list.clear();
+    packageName = "";
+    packageNameList.clear();
   }
 }

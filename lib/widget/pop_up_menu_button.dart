@@ -62,13 +62,11 @@ class _PopUpMenuButtonState<T extends PopUpMenuItem>
             text,
             overflow: TextOverflow.fade,
             style: TextStyle(
-              fontSize: 14,
               color: widget.color ?? const Color(0xFF666666),
             ),
           ),
           Icon(
             Icons.arrow_drop_down,
-            size: 20,
             color: widget.color ?? const Color(0xFF666666),
           ),
         ],

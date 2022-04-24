@@ -1,9 +1,11 @@
 import 'package:android_tool/page/common/app.dart';
 import 'package:android_tool/page/common/base_view_model.dart';
 import 'package:android_tool/widget/input_dialog.dart';
+import 'package:android_tool/widget/list_filter_dialog.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:process_run/shell_run.dart';
 
@@ -200,10 +202,42 @@ class FeatureViewModel extends BaseViewModel {
     } else {
       var path = "";
       for (var value in installPath.outLines) {
-        path += value.replaceAll("package:", "");
+        path += value.replaceAll("package:", "") + "\n";
       }
       showResultDialog(
         content: path,
+      );
+    }
+  }
+
+  /// 保存应用APK到电脑
+  Future<void> saveAppApk() async {
+    var apkFilePath = await execAdb([
+      '-s',
+      deviceId,
+      'shell',
+      'pm',
+      'path',
+      packageName,
+    ]);
+    if (apkFilePath == null || apkFilePath.outLines.isEmpty) {
+      showResultDialog(
+        content: "获取应用安装路径失败",
+      );
+      return;
+    } else {
+      var path = apkFilePath.outLines.first.replaceAll("package:", "");
+      var savePath = await getSavePath(suggestedName: packageName + ".apk");
+      if (savePath == null) return;
+      var result = await execAdb([
+        '-s',
+        deviceId,
+        'pull',
+        path,
+        savePath,
+      ]);
+      showResultDialog(
+        content: result != null && result.exitCode == 0 ? "保存成功" : "保存失败",
       );
     }
   }
@@ -381,6 +415,37 @@ class FeatureViewModel extends BaseViewModel {
     showResultDialog(
       content: result != null && result.exitCode == 0 ? "重启成功" : "重启失败",
     );
+  }
+
+  /// 查看系统属性
+  Future<void> getSystemProperty() async {
+    var result = await execAdb([
+      '-s',
+      deviceId,
+      'shell',
+      'getprop',
+    ]);
+    var outLines = result?.outLines;
+    if (outLines == null || outLines.isEmpty) {
+      showResultDialog(content: "没有系统属性");
+    } else {
+      var list = outLines.toList();
+      list.sort((a, b) => a.compareTo(b));
+      var controller = ListFilterController();
+      controller.show(
+        context,
+        list,
+        "",
+        title: "系统属性列表",
+        tipText: "请输入需要筛选的属性",
+        notFoundText: "没有找到相关属性",
+        itemClickCallback: (context, value) {
+          Navigator.pop(context);
+          Clipboard.setData(ClipboardData(text: value));
+          showResultDialog(content: "已复制到剪切板");
+        },
+      );
+    }
   }
 
   Future<String?> showInputDialog({

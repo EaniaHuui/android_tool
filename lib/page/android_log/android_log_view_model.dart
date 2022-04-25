@@ -126,16 +126,12 @@ class AndroidLogViewModel extends BaseViewModel {
         break;
       case "D":
         return const Color(0xFF017F14);
-        break;
       case "I":
         return const Color(0xFF0585C1);
-        break;
       case "W":
         return const Color(0xFFBBBB23);
-        break;
       case "E":
         return const Color(0xFFFF0006);
-        break;
       case "F":
       default:
         break;

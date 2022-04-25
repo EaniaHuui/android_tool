@@ -55,14 +55,20 @@ class _PopUpMenuButtonState<T extends PopUpMenuItem>
   Widget _menuTitleWidget(BuildContext context) {
     var text = widget.viewModel.selectValue?.menuItemTitle ?? widget.menuTip;
     return Container(
-      padding: const EdgeInsets.all(8),
+      height: 33,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Row(
         children: [
-          Text(
-            text,
-            overflow: TextOverflow.fade,
-            style: TextStyle(
-              color: widget.color ?? const Color(0xFF666666),
+          Container(
+            constraints: const BoxConstraints(
+              minWidth: 60,
+            ),
+            child: Text(
+              text,
+              overflow: TextOverflow.fade,
+              style: TextStyle(
+                color: widget.color ?? const Color(0xFF666666),
+              ),
             ),
           ),
           Icon(
@@ -75,7 +81,7 @@ class _PopUpMenuButtonState<T extends PopUpMenuItem>
   }
 }
 
-class PopUpMenuItem<T> {
+class PopUpMenuItem {
   String menuItemTitle;
 
   PopUpMenuItem(this.menuItemTitle);

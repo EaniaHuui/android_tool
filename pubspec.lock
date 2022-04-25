@@ -167,6 +167,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.4"
+  flutter_list_view:
+    dependency: "direct main"
+    description:
+      name: flutter_list_view
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.1.13"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -429,6 +436,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.0"
+  substring_highlight:
+    dependency: "direct main"
+    description:
+      name: substring_highlight
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.33"
   synchronized:
     dependency: transitive
     description:

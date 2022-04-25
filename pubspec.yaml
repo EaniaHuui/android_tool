@@ -39,6 +39,8 @@ dependencies:
   dio: ^4.0.6
   archive: ^3.3.0
   event_bus: ^2.0.0
+  substring_highlight: ^1.0.33
+  flutter_list_view: ^1.1.13
   selector_plus:
     git: https://github.com/EaniaHuui/selector_plus.git
   # The following adds the Cupertino Icons font to your application.

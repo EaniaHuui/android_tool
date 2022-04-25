@@ -1,3 +1,4 @@
+import 'package:android_tool/page/android_log/android_log_page.dart';
 import 'package:android_tool/page/common/base_page.dart';
 import 'package:android_tool/page/feature_page/feature_page.dart';
 import 'package:android_tool/page/flie_manager/file_manager_page.dart';
@@ -23,7 +24,7 @@ class _MainPageState extends BasePage<MainPage, MainViewModel>
 
   @override
   initState() {
-    tabController = TabController(length: 2, vsync: this);
+    tabController = TabController(length: 3, vsync: this);
     super.initState();
     viewModel.init();
   }
@@ -52,6 +53,7 @@ class _MainPageState extends BasePage<MainPage, MainViewModel>
                 tabs: const [
                   Tab(text: "功能"),
                   Tab(text: "文件管理"),
+                  Tab(text: "Logcat"),
                 ],
                 controller: tabController,
                 indicatorColor: Colors.black.withOpacity(0.72),
@@ -85,6 +87,9 @@ class _MainPageState extends BasePage<MainPage, MainViewModel>
                       deviceId: viewModel.deviceId,
                       packageName: viewModel.packageName),
                   FileManagerPage(
+                      deviceId: viewModel.deviceId,
+                      packageName: viewModel.packageName),
+                  AndroidLogPage(
                       deviceId: viewModel.deviceId,
                       packageName: viewModel.packageName),
                 ],

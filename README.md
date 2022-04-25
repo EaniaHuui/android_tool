@@ -10,6 +10,7 @@
 ### 演示
 ![alt screenshot1](https://github.com/EaniaHuui/android_tool/blob/main/screenshot/screenshot1.gif)
 ![alt screenshot2](https://github.com/EaniaHuui/android_tool/blob/main/screenshot/screenshot2.gif)
+![alt screenshot2](https://github.com/EaniaHuui/android_tool/blob/main/screenshot/screenshot3.png)
 
 ## 实现
 

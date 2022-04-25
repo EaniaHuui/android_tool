@@ -50,6 +50,7 @@ class AndroidLogViewModel extends BaseViewModel {
     this.deviceId,
     this.packageName,
   ) : super(context) {
+    App().getAdbPath().then((value) => adbPath = value);
     App().eventBus.on<DeviceIdEvent>().listen((event) {
       deviceId = event.deviceId;
     });
@@ -79,17 +80,19 @@ class AndroidLogViewModel extends BaseViewModel {
 
   void init() async {
     pid = await getPid();
-    exec("adb", ["-s", deviceId, "logcat", "-c"]);
+    execAdb(["-s", deviceId, "logcat", "-c"]);
     listenerLog();
   }
 
   void listenerLog() {
     String level = filterLevelViewModel.selectValue?.value ?? "";
-    shell.run('adb -s $deviceId logcat \"$level\"', onProcess: (process) {
+    execAdb(["-s", deviceId, "logcat", "$level"], onProcess: (process) {
       var outLine = process.outLines;
       outLine.listen((line) {
         if ((isFilterPackage ? line.contains(pid) : true) &&
-            (filterContent.isNotEmpty ? line.toLowerCase().contains(filterContent.toLowerCase()) : true)) {
+            (filterContent.isNotEmpty
+                ? line.toLowerCase().contains(filterContent.toLowerCase())
+                : true)) {
           logList.add(line);
           notifyListeners();
           if (isShowLast) {

@@ -48,6 +48,7 @@ class _MainPageState extends BasePage<MainPage, MainViewModel>
             children: [
               const SizedBox(height: 20),
               devicesView(),
+              const SizedBox(height: 6),
               packageNameView(context),
               TabBar(
                 tabs: const [
@@ -106,13 +107,20 @@ class _MainPageState extends BasePage<MainPage, MainViewModel>
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: <Widget>[
-          const TextView("设备"),
+          const TextView("选择设备",fontSize: 16,),
           const SizedBox(
             width: 10,
           ),
-          PopUpMenuButton(
-            viewModel: viewModel.devicesViewModel,
-            menuTip: "未连接设备",
+          Container(
+            height: 33,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              border: Border.all(color: Colors.black.withOpacity(0.5)),
+            ),
+            child: PopUpMenuButton(
+              viewModel: viewModel.devicesViewModel,
+              menuTip: "未连接设备",
+            ),
           ),
           const SizedBox(
             width: 10,
@@ -123,6 +131,18 @@ class _MainPageState extends BasePage<MainPage, MainViewModel>
             },
             child: const Icon(
               Icons.refresh,
+              color: Colors.black38,
+            ),
+          ),
+          const SizedBox(
+            width: 10,
+          ),
+          InkWell(
+            onTap: () {
+              viewModel.showAdbPath();
+            },
+            child: const Icon(
+              Icons.settings,
               color: Colors.black38,
             ),
           ),
@@ -137,7 +157,7 @@ class _MainPageState extends BasePage<MainPage, MainViewModel>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          const TextView("调试应用"),
+          const TextView("调试应用",fontSize: 16,),
           const SizedBox(
             width: 10,
             height: 30,
@@ -148,9 +168,14 @@ class _MainPageState extends BasePage<MainPage, MainViewModel>
             },
             child: Container(
               alignment: Alignment.center,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(color: Colors.black.withOpacity(0.5)),
+              ),
               height: 33,
               child: Row(
                 children: [
+                  const SizedBox(width: 10),
                   Selector<MainViewModel, String>(
                     selector: (context, viewModel) => viewModel.packageName,
                     builder: (context, packageName, child) {
@@ -167,6 +192,7 @@ class _MainPageState extends BasePage<MainPage, MainViewModel>
                     Icons.arrow_drop_down,
                     color: Color(0xFF666666),
                   ),
+                  const SizedBox(width: 5),
                 ],
               ),
             ),

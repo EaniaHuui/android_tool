@@ -37,6 +37,9 @@ class FileManagerViewModel extends BaseViewModel {
     App().eventBus.on<PackageNameEvent>().listen((event) {
       packageName = event.packageName;
     });
+    App().eventBus.on<AdbPathEvent>().listen((event) {
+      adbPath = event.path;
+    });
   }
 
   init() async {

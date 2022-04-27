@@ -8,9 +8,11 @@ import 'package:archive/archive_io.dart';
 import 'package:desktop_drop/src/drop_target.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:process_run/shell.dart';
 
+import '../../widget/adb_setting_dialog.dart';
 import 'devices_model.dart';
 
 class MainViewModel extends BaseViewModel {
@@ -242,5 +244,14 @@ class MainViewModel extends BaseViewModel {
     devicesViewModel.list.clear();
     packageName = "";
     packageNameList.clear();
+  }
+
+  void showAdbPath() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AdbSettingDialog(adbPath);
+      },
+    );
   }
 }

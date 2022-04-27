@@ -215,8 +215,12 @@ class _FeaturePageState extends BasePage<FeaturePage, FeatureViewModel> {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: MaterialButton(
+          height: 45,
           color: Colors.blue,
           onPressed: onPressed,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
           child: TextView(
             title,
             color: Colors.white,

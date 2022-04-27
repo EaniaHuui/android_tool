@@ -59,6 +59,7 @@ class App {
     _adbPath = path;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(adbFilePathKey, path);
+    eventBus.fire(AdbPathEvent(path));
   }
 
   /// 获取ADB缓存路径
@@ -73,12 +74,18 @@ class App {
 
 class DeviceIdEvent {
   String deviceId;
+
   DeviceIdEvent(this.deviceId);
 }
 
 class PackageNameEvent {
   String packageName;
+
   PackageNameEvent(this.packageName);
 }
 
+class AdbPathEvent {
+  String path;
 
+  AdbPathEvent(this.path);
+}

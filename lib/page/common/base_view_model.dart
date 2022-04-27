@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:android_tool/page/common/app.dart';
@@ -35,6 +36,8 @@ class BaseViewModel extends ChangeNotifier {
       workingDirectory: userHome,
       environment: Platform.environment,
       throwOnError: false,
+      stderrEncoding: const Utf8Codec(),
+      stdoutEncoding: const Utf8Codec(),
     );
   }
 

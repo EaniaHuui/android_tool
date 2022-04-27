@@ -52,10 +52,23 @@ class AndroidLogViewModel extends BaseViewModel {
   ) : super(context) {
     App().getAdbPath().then((value) => adbPath = value);
     App().eventBus.on<DeviceIdEvent>().listen((event) {
+      logList.clear();
       deviceId = event.deviceId;
+      shell.kill();
+      listenerLog();
     });
-    App().eventBus.on<PackageNameEvent>().listen((event) {
+    App().eventBus.on<PackageNameEvent>().listen((event) async {
       packageName = event.packageName;
+      if (isFilterPackage) {
+        logList.clear();
+        pid = await getPid();
+      }
+    });
+    App().eventBus.on<AdbPathEvent>().listen((event) {
+      logList.clear();
+      adbPath = event.path;
+      shell.kill();
+      listenerLog();
     });
     SharedPreferences.getInstance().then((preferences) {
       isColorLog = preferences.getBool(colorLogKey) ?? true;
@@ -93,6 +106,9 @@ class AndroidLogViewModel extends BaseViewModel {
             (filterContent.isNotEmpty
                 ? line.toLowerCase().contains(filterContent.toLowerCase())
                 : true)) {
+          if(logList.length > 1000){
+            logList.removeAt(0);
+          }
           logList.add(line);
           notifyListeners();
           if (isShowLast) {
@@ -119,7 +135,6 @@ class AndroidLogViewModel extends BaseViewModel {
     }
     var split = log.split(" ");
     split.removeWhere((element) => element.isEmpty);
-    print(split);
     String type = "";
     if (split.length > 4) {
       type = split[4];

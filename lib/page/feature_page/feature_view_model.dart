@@ -25,6 +25,9 @@ class FeatureViewModel extends BaseViewModel {
     App().eventBus.on<PackageNameEvent>().listen((event) {
       packageName = event.packageName;
     });
+    App().eventBus.on<AdbPathEvent>().listen((event) {
+      adbPath = event.path;
+    });
   }
 
   /// 选择文件安装应用

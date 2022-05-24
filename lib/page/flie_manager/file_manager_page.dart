@@ -1,5 +1,6 @@
 import 'package:android_tool/page/common/base_page.dart';
 import 'package:android_tool/page/flie_manager/file_model.dart';
+import 'package:android_tool/widget/text_view.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -9,11 +10,8 @@ import 'file_manager_view_model.dart';
 
 class FileManagerPage extends StatefulWidget {
   final String deviceId;
-  final String packageName;
 
-  const FileManagerPage(
-      {Key? key, required this.deviceId, required this.packageName})
-      : super(key: key);
+  const FileManagerPage(this.deviceId, {Key? key}) : super(key: key);
 
   @override
   _FileManagerPageState createState() => _FileManagerPageState();
@@ -29,14 +27,63 @@ class _FileManagerPageState
 
   @override
   Widget contentView(BuildContext context) {
-    return Container(
-      child: DropTarget(
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+        title: Selector<FileManagerViewModel, String>(
+          selector: (context, model) => model.currentPath,
+          builder: (context, value, child) {
+            var title = value.substring(
+                value.lastIndexOf("/", value.lastIndexOf("/") - 1) + 1,
+                value.lastIndexOf("/"));
+            return TextView(
+              title,
+              fontSize: 16,
+            );
+          },
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black38),
+          onPressed: () {
+            viewModel.backFolder();
+          },
+        ),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.refresh, color: Colors.black38),
+            onPressed: () {
+              viewModel.refresh();
+            },
+          ),
+        ],
+      ),
+      body: DropTarget(
         onDragDone: (data) {
           viewModel.onDragDone(data, -1);
         },
         child: SelectorListPlus<FileManagerViewModel, FileModel>(
           selector: viewModel.files,
           builder: (context, value, child) {
+            if (value.isEmpty) {
+              return Container(
+                alignment: Alignment.center,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset(
+                      "images/ic_empty_file.png",
+                      width: 200,
+                      height: 200,
+                    ),
+                    const TextView(
+                      "暂无文件",
+                      color: Colors.black45,
+                    ),
+                  ],
+                ),
+              );
+            }
             return ListView.builder(
               itemCount: value.length,
               itemBuilder: (context, index) {
@@ -97,7 +144,6 @@ class _FileManagerPageState
     return FileManagerViewModel(
       context,
       widget.deviceId,
-      widget.packageName,
     );
   }
 }

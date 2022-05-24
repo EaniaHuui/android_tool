@@ -1,6 +1,7 @@
 import 'package:android_tool/page/common/app.dart';
 import 'package:android_tool/widget/text_view.dart';
 import 'package:desktop_drop/desktop_drop.dart';
+import 'package:dotted_border/dotted_border.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:process_run/shell_run.dart';
@@ -29,134 +30,143 @@ class _AdbSettingDialogState extends State<AdbSettingDialog> {
     return ChangeNotifierProvider.value(
         value: controller,
         builder: (context, child) {
-          return Dialog(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 30),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const TextView("设置ADB路径", fontSize: 18),
-                  const SizedBox(
-                    height: 30,
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      const TextView(
-                        "ADB路径：",
-                        color: Colors.black,
-                      ),
-                      Expanded(
-                        child: Container(
-                          height: 28,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(3),
-                          ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              const SizedBox(width: 5),
-                              Expanded(
-                                child: TextField(
-                                  controller: controller.textController,
-                                  decoration: const InputDecoration(
-                                    isCollapsed: true,
-                                    hintText: "请输入或选择ADB路径",
-                                    border: OutlineInputBorder(
-                                        borderSide: BorderSide.none),
-                                  ),
-                                  style: const TextStyle(fontSize: 13),
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 30),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const TextView("设置ADB路径", fontSize: 18),
+                const SizedBox(
+                  height: 30,
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    const TextView(
+                      "ADB路径：",
+                      color: Colors.black,
+                    ),
+                    Expanded(
+                      child: Container(
+                        height: 28,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const SizedBox(width: 5),
+                            Expanded(
+                              child: TextField(
+                                controller: controller.textController,
+                                decoration: const InputDecoration(
+                                  isCollapsed: true,
+                                  hintText: "请输入或选择ADB路径",
+                                  border: OutlineInputBorder(
+                                      borderSide: BorderSide.none),
                                 ),
+                                style: const TextStyle(fontSize: 13),
                               ),
-                              GestureDetector(
-                                onTap: () async {
-                                  final typeGroup =
-                                      XTypeGroup(label: 'adb', extensions: []);
-                                  final file = await openFile(
-                                      acceptedTypeGroups: [typeGroup]);
-                                  controller.textController.text =
-                                      file?.path ?? "";
-                                },
-                                child: const Icon(
-                                  Icons.folder_open,
-                                  color: Colors.black38,
-                                ),
+                            ),
+                            GestureDetector(
+                              onTap: () async {
+                                final typeGroup =
+                                    XTypeGroup(label: 'adb', extensions: []);
+                                final file = await openFile(
+                                    acceptedTypeGroups: [typeGroup]);
+                                controller.textController.text =
+                                    file?.path ?? "";
+                              },
+                              child: const Icon(
+                                Icons.folder_open,
+                                color: Colors.black38,
                               ),
-                              const SizedBox(width: 10),
-                            ],
-                          ),
+                            ),
+                            const SizedBox(width: 10),
+                          ],
                         ),
                       ),
-                      const SizedBox(width: 10),
-                      SizedBox(
-                        height: 30,
-                        child: OutlinedButton(
-                          style: ButtonStyle(
-                            side: MaterialStateProperty.all(
-                                const BorderSide(color: Colors.grey)),
-                          ),
-                          onPressed: () {
-                            controller.testAdb();
-                          },
-                          child: const TextView("测试"),
+                    ),
+                    const SizedBox(width: 10),
+                    SizedBox(
+                      height: 30,
+                      child: OutlinedButton(
+                        style: ButtonStyle(
+                          side: MaterialStateProperty.all(
+                              const BorderSide(color: Colors.grey)),
                         ),
+                        onPressed: () {
+                          controller.testAdb();
+                        },
+                        child: const TextView("测试"),
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 10),
-                  Consumer<AdbSettingController>(
-                      builder: (context, value, child) {
-                    return TextView(value.resultText, color: value.resultColor);
-                  }),
-                  DropTarget(
-                    onDragDone: (details) async {
-                      var path = details.files.first.path;
-                      path =
-                          path.isEmpty ? controller.textController.text : path;
-                      controller.textController.text = path;
-                    },
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        SizedBox(height: 50),
-                        Center(
-                          child: Icon(
-                            Icons.insert_drive_file,
+                    ),
+                  ],
+                ),
+                Consumer<AdbSettingController>(
+                    builder: (context, value, child) {
+                  return Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: TextView(value.resultText, color: value.resultColor),
+                  );
+                }),
+                DottedBorder(
+                  borderType: BorderType.RRect,
+                  radius: const Radius.circular(12),
+                  color: Colors.black12,
+                  dashPattern: const [4, 2],
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.all(Radius.circular(12)),
+                    child: DropTarget(
+                      onDragDone: (details) async {
+                        var path = details.files.first.path;
+                        path = path.isEmpty
+                            ? controller.textController.text
+                            : path;
+                        controller.textController.text = path;
+                      },
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          SizedBox(height: 50),
+                          Center(
+                            child: Icon(
+                              Icons.insert_drive_file,
+                              color: Colors.grey,
+                              size: 100,
+                            ),
+                          ),
+                          SizedBox(height: 15),
+                          TextView(
+                            "请将ADB文件拖拽到此处",
                             color: Colors.grey,
-                            size: 100,
                           ),
-                        ),
-                        SizedBox(height: 15),
-                        TextView(
-                          "请将ADB文件拖拽到此处",
-                          color: Colors.grey,
-                        ),
-                        SizedBox(height: 60),
-                      ],
+                          SizedBox(height: 70),
+                        ],
+                      ),
                     ),
                   ),
-                  MaterialButton(
-                    height: 45,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    color: Colors.blue,
-                    minWidth: double.infinity,
-                    onPressed: () async {
-                      controller.save(context);
-                    },
-                    child: const TextView(
-                      "保存",
-                      color: Colors.white,
-                    ),
-                  )
-                ],
-              ),
+                ),
+                const SizedBox(height: 20),
+                MaterialButton(
+                  height: 45,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  color: Colors.blue,
+                  minWidth: double.infinity,
+                  onPressed: () async {
+                    controller.save(context);
+                  },
+                  child: const TextView(
+                    "保存",
+                    color: Colors.white,
+                  ),
+                )
+              ],
             ),
           );
         });
@@ -200,7 +210,6 @@ class AdbSettingController extends ChangeNotifier {
   Future<void> save(BuildContext context) async {
     if (await testAdb()) {
       await App().setAdbPath(textController.text);
-      Navigator.pop(context);
     }
   }
 }

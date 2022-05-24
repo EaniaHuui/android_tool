@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:android_tool/page/common/app.dart';
 import 'package:android_tool/page/common/base_view_model.dart';
 import 'package:android_tool/widget/list_filter_dialog.dart';
-import 'package:android_tool/widget/pop_up_menu_button.dart';
 import 'package:archive/archive_io.dart';
 import 'package:desktop_drop/src/drop_target.dart';
 import 'package:dio/dio.dart';
@@ -12,26 +11,28 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:process_run/shell.dart';
 
-import '../../widget/adb_setting_dialog.dart';
 import 'devices_model.dart';
 
 class MainViewModel extends BaseViewModel {
-  PopUpMenuButtonViewModel<DevicesModel> devicesViewModel =
-      PopUpMenuButtonViewModel();
-
-  ListFilterController packageNameController =
+  ListFilterController devicesController = ListFilterController();
+  ListFilterController<ListFilterItem> packageNameController =
       ListFilterController();
 
-  List<String> packageNameList = [];
+  List<ListFilterItem> packageNameList = [];
   String packageName = "";
 
+  List<DevicesModel> devicesList = [];
+  DevicesModel? device;
+
+  int selectedIndex = -1;
+
   MainViewModel(context) : super(context) {
-    devicesViewModel.addListener(() {
-      if (devicesViewModel.selectValue != null) {
-        App().setDeviceId(deviceId);
-        getInstalledApp(deviceId);
-      }
-    });
+    // devicesViewModel.addListener(() {
+    //   if (devicesViewModel.selectValue != null) {
+    //     App().setDeviceId(deviceId);
+    //     getInstalledApp(deviceId);
+    //   }
+    // });
     App().eventBus.on<String>().listen((event) {
       if (event == "refresh") {
         getInstalledApp(deviceId);
@@ -39,12 +40,15 @@ class MainViewModel extends BaseViewModel {
     });
   }
 
-  String get deviceId => devicesViewModel.selectValue?.id ?? "";
+  String get deviceId => device?.id ?? "";
 
   init() async {
     await checkAdb();
     if (adbPath.isNotEmpty) {
       await getDeviceList();
+      await getInstalledApp(deviceId);
+      selectedIndex = 1;
+      notifyListeners();
     }
   }
 
@@ -122,7 +126,7 @@ class MainViewModel extends BaseViewModel {
       clearData();
       return;
     }
-    List<DevicesModel> list = [];
+    devicesList.clear();
     for (var value in devices.outLines) {
       if (value.contains("List of devices attached")) {
         continue;
@@ -135,24 +139,22 @@ class MainViewModel extends BaseViewModel {
         var device = deviceLine[0];
         var brand = await getBrand(device);
         var model = await getModel(device);
-        list.add(DevicesModel(brand, model, device));
+        devicesList.add(DevicesModel(brand, model, device));
       }
     }
-    if (list.isEmpty) {
+    if (devicesList.isEmpty) {
       clearData();
       return;
     } else {
-      App().getDeviceId().then((value) {
-        if (value.isNotEmpty) {
-          devicesViewModel.selectValue = list.firstWhere(
-              (element) => element.id == value,
-              orElse: () => list.first);
-        } else {
-          devicesViewModel.selectValue = list.first;
-        }
-      });
+      var value = await App().getDeviceId();
+      if (value.isNotEmpty) {
+        device = devicesList.firstWhere((element) => element.id == value,
+            orElse: () => devicesList.first);
+      } else {
+        device = devicesList.first;
+      }
     }
-    devicesViewModel.list = list;
+    devicesController.setData(devicesList);
   }
 
   /// 获取设备品牌
@@ -188,17 +190,19 @@ class MainViewModel extends BaseViewModel {
     if (installedApp == null) return;
     var outLines = installedApp.outLines;
     packageNameList = outLines.map((e) {
-      return e.replaceAll("package:", "");
+      return ListFilterItem(e.replaceAll("package:", ""));
     }).toList();
-    packageNameList.sort((a, b) => a.compareTo(b));
+    packageNameList.sort((a, b) => a.itemTitle.compareTo(b.itemTitle));
+    packageNameController.setData(packageNameList);
     if (packageNameList.isNotEmpty) {
       App().getPackageName().then((value) {
         if (value.isNotEmpty) {
-          packageName = packageNameList.firstWhere(
-              (element) => element == value,
-              orElse: () => packageNameList.first);
+          packageName = packageNameList
+              .firstWhere((element) => element.itemTitle == value,
+                  orElse: () => packageNameList.first)
+              .itemTitle;
         } else {
-          packageName = packageNameList.first;
+          packageName = packageNameList.first.itemTitle;
         }
       });
     }
@@ -209,6 +213,28 @@ class MainViewModel extends BaseViewModel {
   //   print(clipboardText.outLines);
   // }
 
+  /// 选择设备
+  Future<void> devicesSelect(BuildContext context) async {
+    if (devicesList.isEmpty) {
+      return;
+    }
+    devicesController.show(
+      context,
+      devicesList,
+      device,
+      itemClickCallback: <DevicesModel>(context, value) {
+        device = value;
+        App().setDeviceId(deviceId);
+        notifyListeners();
+        getInstalledApp(deviceId);
+        Navigator.of(context).pop();
+      },
+      refreshCallback: () {
+        getDeviceList();
+      },
+    );
+  }
+
   /// 选择调试应用
   packageSelect(BuildContext context) async {
     if (packageNameList.isEmpty) {
@@ -217,12 +243,15 @@ class MainViewModel extends BaseViewModel {
     packageNameController.show(
       context,
       packageNameList,
-      packageName,
+      ListFilterItem(packageName),
       itemClickCallback: (context, value) {
-        packageName = value;
+        packageName = value.itemTitle;
         App().setPackageName(packageName);
         notifyListeners();
         Navigator.of(context).pop();
+      },
+      refreshCallback: () {
+        getInstalledApp(deviceId);
       },
     );
   }
@@ -240,18 +269,14 @@ class MainViewModel extends BaseViewModel {
   }
 
   void clearData() {
-    devicesViewModel.selectValue = null;
-    devicesViewModel.list.clear();
+    device = null;
+    devicesList.clear();
     packageName = "";
     packageNameList.clear();
   }
 
-  void showAdbPath() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AdbSettingDialog(adbPath);
-      },
-    );
+  void onLeftItemClick(int index) {
+    selectedIndex = index;
+    notifyListeners();
   }
 }

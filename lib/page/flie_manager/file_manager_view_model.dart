@@ -19,7 +19,6 @@ class FileManagerViewModel extends BaseViewModel {
   SelectorListPlusData<FileModel> files = SelectorListPlusData();
 
   String deviceId;
-  String packageName;
 
   final String rootPath = '/sdcard/';
   String currentPath = '/sdcard/';
@@ -29,13 +28,9 @@ class FileManagerViewModel extends BaseViewModel {
   FileManagerViewModel(
     BuildContext context,
     this.deviceId,
-    this.packageName,
   ) : super(context) {
     App().eventBus.on<DeviceIdEvent>().listen((event) {
       deviceId = event.deviceId;
-    });
-    App().eventBus.on<PackageNameEvent>().listen((event) {
-      packageName = event.packageName;
     });
     App().eventBus.on<AdbPathEvent>().listen((event) {
       adbPath = event.path;
@@ -52,13 +47,6 @@ class FileManagerViewModel extends BaseViewModel {
         await execAdb(["-s", deviceId, "shell", "ls", "-F", currentPath]);
     if (result == null) return;
     files.value = [];
-    if (rootPath != currentPath) {
-      files.add(FileModel(
-        "...",
-        typeBackFolder,
-        null,
-      ));
-    }
     for (var value in result.outLines) {
       if (value.endsWith("/")) {
         files.add(FileModel(
@@ -84,10 +72,6 @@ class FileManagerViewModel extends BaseViewModel {
   }
 
   void openFolder(FileModel value) {
-    if (value.type == typeBackFolder) {
-      backFolder();
-      return;
-    }
     if (value.type == typeFolder) {
       currentPath += value.name + "/";
       getFileList();
@@ -108,11 +92,11 @@ class FileManagerViewModel extends BaseViewModel {
         index == -1 ? currentPath : currentPath + files.value[index].name;
     for (var file in data.files) {
       if (file.path.endsWith(".apk")) {
-       var isInstall = await showInstallApkDialog(deviceId, file);
-       if (isInstall==null||!isInstall) {
-         msg += await pushFileToDevices(file.path, file.name, devicePath);
-       }
-      }else{
+        var isInstall = await showInstallApkDialog(deviceId, file);
+        if (isInstall == null || !isInstall) {
+          msg += await pushFileToDevices(file.path, file.name, devicePath);
+        }
+      } else {
         msg += await pushFileToDevices(file.path, file.name, devicePath);
       }
     }
@@ -227,5 +211,9 @@ class FileManagerViewModel extends BaseViewModel {
     } else {
       showResultDialog(content: "保存失败");
     }
+  }
+
+  void refresh() {
+    getFileList();
   }
 }

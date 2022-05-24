@@ -2,11 +2,13 @@ import 'package:android_tool/page/android_log/android_log_page.dart';
 import 'package:android_tool/page/common/base_page.dart';
 import 'package:android_tool/page/feature_page/feature_page.dart';
 import 'package:android_tool/page/flie_manager/file_manager_page.dart';
-import 'package:android_tool/widget/pop_up_menu_button.dart';
+import 'package:android_tool/page/main/devices_model.dart';
+import 'package:android_tool/widget/adb_setting_dialog.dart';
 import 'package:android_tool/widget/text_view.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 import 'main_view_model.dart';
@@ -18,196 +20,203 @@ class MainPage extends StatefulWidget {
   _MainPageState createState() => _MainPageState();
 }
 
-class _MainPageState extends BasePage<MainPage, MainViewModel>
-    with SingleTickerProviderStateMixin {
-  late TabController tabController;
-
+class _MainPageState extends BasePage<MainPage, MainViewModel> {
   @override
   initState() {
-    tabController = TabController(length: 3, vsync: this);
     super.initState();
     viewModel.init();
   }
 
   @override
-  void dispose() {
-    super.dispose();
-    tabController.dispose();
-  }
-
-  @override
   Widget contentView(BuildContext context) {
-    return Column(
+    var select = context.watch<MainViewModel>().selectedIndex;
+    return Row(
       children: <Widget>[
         DropTarget(
           onDragDone: (details) {
             viewModel.onDragDone(details);
           },
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 20),
-              devicesView(),
-              const SizedBox(height: 6),
-              packageNameView(context),
-              TabBar(
-                tabs: const [
-                  Tab(text: "功能"),
-                  Tab(text: "文件管理"),
-                  Tab(text: "Logcat"),
-                ],
-                controller: tabController,
-                indicatorColor: Colors.black.withOpacity(0.72),
-                labelColor: Colors.black.withOpacity(0.72),
-                unselectedLabelColor: Colors.black.withOpacity(0.5),
-                isScrollable: true,
-                indicatorSize: TabBarIndicatorSize.label,
-                indicatorWeight: 2,
-                labelStyle: const TextStyle(fontSize: 16),
-                unselectedLabelStyle: const TextStyle(fontSize: 16),
-              ),
-              const SizedBox(height: 20),
-            ],
+          child: SizedBox(
+            width: 200,
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                Image.asset("images/app_icon.png", width: 60, height: 60),
+                devicesView(),
+                const SizedBox(height: 20),
+                // const Divider(height: 1),
+                // _leftItem("images/ic_devices_info.svg", "设备信息", 0),
+                const Divider(height: 1),
+                _leftItem("images/ic_quick_future.svg", "快捷功能", 1),
+                const Divider(height: 1),
+                _leftItem("images/ic_folder.svg", "文件管理", 2),
+                const Divider(height: 1),
+                _leftItem("images/ic_log.svg", "LogCat", 3),
+                const Divider(height: 1),
+                _leftItem("images/ic_settings.svg", "设置", 4),
+                const Divider(height: 1),
+              ],
+            ),
           ),
         ),
+        const VerticalDivider(width: 1),
         Expanded(
-          child: Consumer<MainViewModel>(
-            builder: (context, value, child) {
-              if (value.deviceId.isEmpty || value.packageName.isEmpty) {
-                return const Center(
-                  child: TextView(
-                    "请选择设备和调试应用",
-                  ),
-                );
-              }
-              return TabBarView(
-                controller: tabController,
-                physics: const NeverScrollableScrollPhysics(),
-                children: <Widget>[
-                  FeaturePage(
-                      deviceId: viewModel.deviceId,
-                      packageName: viewModel.packageName),
-                  FileManagerPage(
-                      deviceId: viewModel.deviceId,
-                      packageName: viewModel.packageName),
-                  AndroidLogPage(
-                      deviceId: viewModel.deviceId,
-                      packageName: viewModel.packageName),
-                ],
-              );
-            },
+          child: Column(
+            children: [
+              packageNameView(context, select),
+              Expanded(
+                child: buildContent(select),
+              ),
+            ],
           ),
         ),
       ],
     );
   }
 
+  Widget buildContent(int value) {
+    // if (value == 0) {
+    //   return DevicesInfoPage(
+    //     deviceId: viewModel.deviceId,
+    //     packageName: viewModel.packageName,
+    //   );
+    // } else
+    if (value == 1) {
+      return FeaturePage(
+        deviceId: viewModel.deviceId,
+        packageName: viewModel.packageName,
+      );
+    } else if (value == 2) {
+      return FileManagerPage(viewModel.deviceId);
+    } else if (value == 3) {
+      return AndroidLogPage(
+          deviceId: viewModel.deviceId, packageName: viewModel.packageName);
+    } else if (value == 4) {
+      return AdbSettingDialog(viewModel.adbPath);
+    } else {
+      return Container();
+    }
+    ;
+  }
+
+  Widget _leftItem(String image, String name, int index) {
+    return ListTile(
+      selectedTileColor: Colors.black.withOpacity(0.1),
+      selected: index == viewModel.selectedIndex,
+      leading: SvgPicture.asset(
+        image,
+        width: 25,
+        height: 25,
+      ),
+      title: TextView(name),
+      onTap: () {
+        viewModel.onLeftItemClick(index);
+      },
+    );
+  }
+
   Widget devicesView() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+    return InkWell(
+      onTap: () {
+        viewModel.devicesSelect(context);
+      },
       child: Row(
-        children: <Widget>[
-          const TextView("选择设备",fontSize: 16,),
-          const SizedBox(
-            width: 10,
-          ),
-          Container(
-            height: 33,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              border: Border.all(color: Colors.black.withOpacity(0.5)),
-            ),
-            child: PopUpMenuButton(
-              viewModel: viewModel.devicesViewModel,
-              menuTip: "未连接设备",
-            ),
-          ),
-          const SizedBox(
-            width: 10,
-          ),
-          InkWell(
-            onTap: () {
-              viewModel.getDeviceList();
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(width: 10),
+          Selector<MainViewModel, DevicesModel?>(
+            selector: (context, viewModel) => viewModel.device,
+            builder: (context, device, child) {
+              return Container(
+                constraints: const BoxConstraints(
+                  maxWidth: 150,
+                ),
+                child: Text(
+                  device?.itemTitle ?? "未连接设备",
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Color(0xFF666666),
+                    fontSize: 12,
+                  ),
+                ),
+              );
             },
-            child: const Icon(
-              Icons.refresh,
-              color: Colors.black38,
-            ),
           ),
           const SizedBox(
-            width: 10,
+            width: 5,
           ),
-          InkWell(
-            onTap: () {
-              viewModel.showAdbPath();
-            },
-            child: const Icon(
-              Icons.settings,
-              color: Colors.black38,
-            ),
+          const Icon(
+            Icons.arrow_drop_down,
+            color: Color(0xFF666666),
           ),
+          const SizedBox(width: 5),
         ],
       ),
     );
   }
 
-  Widget packageNameView(BuildContext context) {
-    return Padding(
+  Widget packageNameView(BuildContext context, int value) {
+    if (value == 2 || value == 4) {
+      return Container();
+    }
+    return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
+      color: Colors.white,
+      height: 50,
+      width: double.infinity,
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          const TextView("调试应用",fontSize: 16,),
-          const SizedBox(
-            width: 10,
-            height: 30,
-          ),
-          InkWell(
-            onTap: () {
-              viewModel.packageSelect(context);
-            },
-            child: Container(
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5),
-                border: Border.all(color: Colors.black.withOpacity(0.5)),
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // devicesView(),
+          const SizedBox(width: 10),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              const TextView(
+                "调试应用",
+                fontSize: 14,
               ),
-              height: 33,
-              child: Row(
-                children: [
-                  const SizedBox(width: 10),
-                  Selector<MainViewModel, String>(
-                    selector: (context, viewModel) => viewModel.packageName,
-                    builder: (context, packageName, child) {
-                      return TextView(
-                        packageName.isEmpty ? "未选择调试应用" : packageName,
-                        color: const Color(0xFF666666),
-                      );
-                    },
-                  ),
-                  const SizedBox(
-                    width: 5,
-                  ),
-                  const Icon(
-                    Icons.arrow_drop_down,
-                    color: Color(0xFF666666),
-                  ),
-                  const SizedBox(width: 5),
-                ],
+              const SizedBox(
+                width: 10,
+                height: 30,
               ),
-            ),
-          ),
-          const SizedBox(
-            width: 10,
-          ),
-          InkWell(
-            onTap: () {
-              viewModel.getInstalledApp(viewModel.deviceId);
-            },
-            child: const Icon(
-              Icons.refresh,
-              color: Colors.black38,
-            ),
+              InkWell(
+                onTap: () {
+                  viewModel.packageSelect(context);
+                },
+                child: Container(
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    border: Border.all(color: Colors.black.withOpacity(0.5)),
+                  ),
+                  height: 28,
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 10),
+                      Selector<MainViewModel, String>(
+                        selector: (context, viewModel) => viewModel.packageName,
+                        builder: (context, packageName, child) {
+                          return TextView(
+                            packageName.isEmpty ? "未选择调试应用" : packageName,
+                            color: const Color(0xFF666666),
+                            fontSize: 12,
+                          );
+                        },
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      const Icon(
+                        Icons.arrow_drop_down,
+                        color: Color(0xFF666666),
+                      ),
+                      const SizedBox(width: 5),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

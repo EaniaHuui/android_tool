@@ -3,14 +3,17 @@ import 'package:android_tool/page/feature_page/feature_view_model.dart';
 import 'package:android_tool/widget/text_view.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class FeaturePage extends StatefulWidget {
   final String deviceId;
   final String packageName;
 
-  const FeaturePage(
-      {Key? key, required this.deviceId, required this.packageName})
-      : super(key: key);
+  const FeaturePage({
+    Key? key,
+    required this.deviceId,
+    required this.packageName,
+  }) : super(key: key);
 
   @override
   _FeaturePageState createState() => _FeaturePageState();
@@ -23,190 +26,307 @@ class _FeaturePageState extends BasePage<FeaturePage, FeatureViewModel> {
       onDragDone: (details) {
         viewModel.onDragDone(details);
       },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const TextView("应用相关"),
-              const SizedBox(height: 5),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: <Widget>[
-                  buttonView("安装应用", () {
-                    viewModel.install();
-                  }),
-                  buttonView("卸载应用", () {
-                    viewModel.uninstallApk();
-                  }),
-                  buttonView("启动应用", () {
-                    viewModel.startApp();
-                  }),
-                  buttonView("停止运行", () {
-                    viewModel.stopApp();
-                  }),
-                ],
+      child: Column(
+        children: [
+          // const SizedBox(height: 20),
+          // _packageNameView(context),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _featureCardView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const TextView("应用相关"),
+                          const SizedBox(height: 5),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: <Widget>[
+                              buttonView("安装应用", () {
+                                viewModel.install();
+                              }),
+                              buttonView("卸载应用", () {
+                                viewModel.uninstallApk();
+                              }),
+                              buttonView("启动应用", () {
+                                viewModel.startApp();
+                              }),
+                              buttonView("停止运行", () {
+                                viewModel.stopApp();
+                              }),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: <Widget>[
+                              buttonView("重启应用", () {
+                                viewModel.restartApp();
+                              }),
+                              buttonView("清除数据", () {
+                                viewModel.clearAppData();
+                              }),
+                              buttonView("清除数据并重启应用", () async {
+                                await viewModel.clearAppData();
+                                await viewModel.startApp();
+                              }),
+                              buttonView("重置权限", () {
+                                viewModel.resetAppPermission();
+                              }),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: <Widget>[
+                              buttonView("重置权限并重启应用", () async {
+                                await viewModel.stopApp();
+                                await viewModel.resetAppPermission();
+                                await viewModel.startApp();
+                              }),
+                              buttonView("授权所有权限", () {
+                                viewModel.grantAppPermission();
+                              }),
+                              buttonView("查看应用安装路径", () {
+                                viewModel.getAppInstallPath();
+                              }),
+                              buttonView("保存应用APK到电脑", () {
+                                viewModel.saveAppApk();
+                              }),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    _featureCardView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const TextView("系统相关"),
+                          const SizedBox(height: 5),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: <Widget>[
+                              buttonView("输入文本", () {
+                                viewModel.inputText();
+                              }),
+                              buttonView("截图保存到电脑", () {
+                                viewModel.screenshot();
+                              }),
+                              buttonView("开始录屏", () {
+                                viewModel.recordScreen();
+                              }),
+                              buttonView("结束录屏保存到电脑", () {
+                                viewModel.stopRecordAndSave();
+                              }),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: <Widget>[
+                              buttonView("查看当前Activity", () {
+                                viewModel.getForegroundActivity();
+                              }),
+                              buttonView("查看AndroidId", () {
+                                viewModel.getAndroidId();
+                              }),
+                              buttonView("查看系统版本", () {
+                                viewModel.getDeviceVersion();
+                              }),
+                              buttonView("查看IP地址", () {
+                                viewModel.getDeviceIpAddress();
+                              }),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: <Widget>[
+                              buttonView("查看Mac地址", () {
+                                viewModel.getDeviceMac();
+                              }),
+                              buttonView("重启手机", () {
+                                viewModel.reboot();
+                              }),
+                              buttonView("查看系统属性", () {
+                                viewModel.getSystemProperty();
+                              }),
+                              Expanded(child: Container()),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    _featureCardView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const TextView("按键相关"),
+                          const SizedBox(height: 5),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: <Widget>[
+                              buttonView("HOME键", () {
+                                viewModel.pressHome();
+                              }),
+                              buttonView("返回键", () {
+                                viewModel.pressBack();
+                              }),
+                              buttonView("菜单键", () {
+                                viewModel.pressMenu();
+                              }),
+                              buttonView("电源键", () {
+                                viewModel.pressPower();
+                              }),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: <Widget>[
+                              buttonView("增加音量", () {
+                                viewModel.pressVolumeUp();
+                              }),
+                              buttonView("降低音量", () {
+                                viewModel.pressVolumeDown();
+                              }),
+                              buttonView("静音", () {
+                                viewModel.pressVolumeMute();
+                              }),
+                              buttonView("切换应用", () {
+                                viewModel.pressSwitchApp();
+                              }),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    _featureCardView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const TextView("屏幕输入"),
+                          const SizedBox(height: 5),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: <Widget>[
+                              buttonView("向上滑动", () {
+                                viewModel.pressSwipeUp();
+                              }),
+                              buttonView("向下滑动", () {
+                                viewModel.pressSwipeDown();
+                              }),
+                              buttonView("向左滑动", () {
+                                viewModel.pressSwipeLeft();
+                              }),
+                              buttonView("向右滑动", () {
+                                viewModel.pressSwipeRight();
+                              }),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: <Widget>[
+                              buttonView("屏幕点击", () {
+                                viewModel.pressScreen();
+                              }),
+                              Expanded(flex: 3, child: Container()),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: <Widget>[
-                  buttonView("重启应用", () {
-                    viewModel.restartApp();
-                  }),
-                  buttonView("清除数据", () {
-                    viewModel.clearAppData();
-                  }),
-                  buttonView("清除数据并重启应用", () async {
-                    await viewModel.clearAppData();
-                    await viewModel.startApp();
-                  }),
-                  buttonView("重置权限", () {
-                    viewModel.resetAppPermission();
-                  }),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: <Widget>[
-                  buttonView("重置权限并重启应用", () async {
-                    await viewModel.stopApp();
-                    await viewModel.resetAppPermission();
-                    await viewModel.startApp();
-                  }),
-                  buttonView("授权所有权限", () {
-                    viewModel.grantAppPermission();
-                  }),
-                  buttonView("查看应用安装路径", () {
-                    viewModel.getAppInstallPath();
-                  }),
-                  buttonView("保存应用APK到电脑", () {
-                    viewModel.saveAppApk();
-                  }),
-                ],
-              ),
-              const SizedBox(height: 20),
-              const TextView("系统相关"),
-              const SizedBox(height: 5),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: <Widget>[
-                  buttonView("输入文本", () {
-                    viewModel.inputText();
-                  }),
-                  buttonView("截图保存到电脑", () {
-                    viewModel.screenshot();
-                  }),
-                  buttonView("开始录屏", () {
-                    viewModel.recordScreen();
-                  }),
-                  buttonView("结束录屏保存到电脑", () {
-                    viewModel.stopRecordAndSave();
-                  }),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: <Widget>[
-                  buttonView("查看当前Activity", () {
-                    viewModel.getForegroundActivity();
-                  }),
-                  buttonView("查看AndroidId", () {
-                    viewModel.getAndroidId();
-                  }),
-                  buttonView("查看系统版本", () {
-                    viewModel.getDeviceVersion();
-                  }),
-                  buttonView("查看IP地址", () {
-                    viewModel.getDeviceIpAddress();
-                  }),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: <Widget>[
-                  buttonView("查看Mac地址", () {
-                    viewModel.getDeviceMac();
-                  }),
-                  buttonView("重启手机", () {
-                    viewModel.reboot();
-                  }),
-                  buttonView("查看系统属性", () {
-                    viewModel.getSystemProperty();
-                  }),
-                  Expanded(child: Container()),
-                ],
-              ),
-              const SizedBox(height: 20),
-              const TextView("按键相关"),
-              const SizedBox(height: 5),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: <Widget>[
-                  buttonView("HOME键", () {
-                    viewModel.pressHome();
-                  }),
-                  buttonView("返回键", () {
-                    viewModel.pressBack();
-                  }),
-                  buttonView("菜单键", () {
-                    viewModel.pressMenu();
-                  }),
-                  buttonView("电源键", () {
-                    viewModel.pressPower();
-                  }),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: <Widget>[
-                  buttonView("增加音量", () {
-                    viewModel.pressVolumeUp();
-                  }),
-                  buttonView("降低音量", () {
-                    viewModel.pressVolumeDown();
-                  }),
-                  buttonView("静音", () {
-                    viewModel.pressVolumeMute();
-                  }),
-                  buttonView("切换应用", () {
-                    viewModel.pressSwitchApp();
-                  }),
-                ],
-              ),
-              const SizedBox(height: 20),
-              const TextView("屏幕输入"),
-              const SizedBox(height: 5),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: <Widget>[
-                  buttonView("向上滑动", () {
-                    viewModel.pressSwipeUp();
-                  }),
-                  buttonView("向下滑动", () {
-                    viewModel.pressSwipeDown();
-                  }),
-                  buttonView("向左滑动", () {
-                    viewModel.pressSwipeLeft();
-                  }),
-                  buttonView("向右滑动", () {
-                    viewModel.pressSwipeRight();
-                  }),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: <Widget>[
-                  buttonView("屏幕点击", () {
-                    viewModel.pressScreen();
-                  }),
-                  Expanded(flex: 3, child: Container()),
-                ],
-              ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
+    );
+  }
+
+  Widget _packageNameView(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          const TextView(
+            "调试应用",
+            fontSize: 16,
+          ),
+          const SizedBox(
+            width: 10,
+            height: 30,
+          ),
+          InkWell(
+            onTap: () {
+              // viewModel.packageSelect(context);
+            },
+            child: Container(
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(color: Colors.black.withOpacity(0.5)),
+              ),
+              height: 33,
+              child: Row(
+                children: [
+                  const SizedBox(width: 10),
+                  Selector<FeatureViewModel, String>(
+                    selector: (context, viewModel) => viewModel.packageName,
+                    builder: (context, packageName, child) {
+                      return TextView(
+                        packageName.isEmpty ? "未选择调试应用" : packageName,
+                        color: const Color(0xFF666666),
+                      );
+                    },
+                  ),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  const Icon(
+                    Icons.arrow_drop_down,
+                    color: Color(0xFF666666),
+                  ),
+                  const SizedBox(width: 5),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(
+            width: 10,
+          ),
+          InkWell(
+            onTap: () {
+              // viewModel.getInstalledApp(viewModel.deviceId);
+            },
+            child: const Icon(
+              Icons.refresh,
+              color: Colors.black38,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Container _featureCardView({required Widget child}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.black12),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      padding: const EdgeInsets.all(10),
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: child,
     );
   }
 

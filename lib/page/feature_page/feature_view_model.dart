@@ -249,14 +249,28 @@ class FeatureViewModel extends BaseViewModel {
   Future<void> screenshot() async {
     var path = await getDirectoryPath();
     if (path == null || path.isEmpty) return;
+    await execAdb([
+      '-s',
+      deviceId,
+      'shell',
+      'screencap',
+      '-p',
+      '/sdcard/screenshot.png',
+    ]);
     var result = await execAdb([
       '-s',
       deviceId,
-      'exec-out',
-      'screencap',
-      '-p',
-      '>',
+      'pull',
+      '/sdcard/screenshot.png',
       '$path/screenshot${DateTime.now().millisecondsSinceEpoch}.png',
+    ]);
+    await execAdb([
+      '-s',
+      deviceId,
+      'shell',
+      'rm',
+      '-rf',
+      '/sdcard/screenshot.png',
     ]);
 
     if (result != null && result.exitCode == 0) {
@@ -434,17 +448,18 @@ class FeatureViewModel extends BaseViewModel {
     } else {
       var list = outLines.toList();
       list.sort((a, b) => a.compareTo(b));
-      var controller = ListFilterController();
+      ListFilterController<ListFilterItem> controller =
+          ListFilterController<ListFilterItem>();
       controller.show(
         context,
-        list,
-        "",
+        list.map((e) => ListFilterItem(e)).toList(),
+        ListFilterItem(""),
         title: "系统属性列表",
         tipText: "请输入需要筛选的属性",
         notFoundText: "没有找到相关属性",
         itemClickCallback: (context, value) {
           Navigator.pop(context);
-          Clipboard.setData(ClipboardData(text: value));
+          Clipboard.setData(ClipboardData(text: value.itemTitle));
           showResultDialog(content: "已复制到剪切板");
         },
       );
@@ -603,7 +618,7 @@ class FeatureViewModel extends BaseViewModel {
       'input',
       'swipe',
       '300',
-      '1000',
+      '1300',
       '300',
       '300',
     ]);
@@ -620,7 +635,7 @@ class FeatureViewModel extends BaseViewModel {
       '300',
       '300',
       '300',
-      '1000',
+      '1300',
     ]);
   }
 
@@ -632,9 +647,9 @@ class FeatureViewModel extends BaseViewModel {
       'shell',
       'input',
       'swipe',
-      '700',
+      '900',
       '300',
-      '300',
+      '100',
       '300',
     ]);
   }
@@ -647,9 +662,9 @@ class FeatureViewModel extends BaseViewModel {
       'shell',
       'input',
       'swipe',
+      '100',
       '300',
-      '300',
-      '700',
+      '900',
       '300',
     ]);
   }

@@ -4,16 +4,12 @@ import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:selector_plus/selector_plus.dart';
 
-typedef ItemClickCallback<T> = void Function(
-    BuildContext context, T value);
-
 class ListFilterDialog<T extends ListFilterItem> extends StatefulWidget {
   final ListFilterController controller;
 
   final String? title;
   final String? tipText;
   final String? notFoundText;
-  final ItemClickCallback<T>? itemClickCallback;
   final Function()? refreshCallback;
 
   const ListFilterDialog({
@@ -22,7 +18,6 @@ class ListFilterDialog<T extends ListFilterItem> extends StatefulWidget {
     this.title,
     this.tipText,
     this.notFoundText,
-    this.itemClickCallback,
     this.refreshCallback,
   }) : super(key: key);
 
@@ -121,8 +116,7 @@ class _ListFilterDialogState<T extends ListFilterItem>
                                       : null,
                                 ),
                                 onTap: () {
-                                  widget.itemClickCallback
-                                      ?.call(context, value[index]);
+                                  Navigator.of(context).pop(value[index]);
                                 },
                               );
                             },
@@ -178,7 +172,6 @@ class ListFilterController<T extends ListFilterItem> extends ChangeNotifier {
     String? title,
     String? tipText,
     String? notFoundText,
-    ItemClickCallback<T>? itemClickCallback,
     Function()? refreshCallback,
   }) async {
     dataList = data;
@@ -191,7 +184,6 @@ class ListFilterController<T extends ListFilterItem> extends ChangeNotifier {
         title: title,
         tipText: tipText,
         notFoundText: notFoundText,
-        itemClickCallback: itemClickCallback,
         refreshCallback: refreshCallback,
       ),
     );

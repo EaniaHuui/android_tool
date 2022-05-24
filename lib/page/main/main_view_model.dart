@@ -14,7 +14,7 @@ import 'package:process_run/shell.dart';
 import 'devices_model.dart';
 
 class MainViewModel extends BaseViewModel {
-  ListFilterController devicesController = ListFilterController();
+  ListFilterController<DevicesModel> devicesController = ListFilterController();
   ListFilterController<ListFilterItem> packageNameController =
       ListFilterController();
 
@@ -218,21 +218,20 @@ class MainViewModel extends BaseViewModel {
     if (devicesList.isEmpty) {
       return;
     }
-    devicesController.show(
+    var value = await devicesController.show(
       context,
       devicesList,
       device,
-      itemClickCallback: <DevicesModel>(context, value) {
-        device = value;
-        App().setDeviceId(deviceId);
-        notifyListeners();
-        getInstalledApp(deviceId);
-        Navigator.of(context).pop();
-      },
       refreshCallback: () {
         getDeviceList();
       },
     );
+    if (value != null) {
+      device = value;
+      App().setDeviceId(deviceId);
+      await getInstalledApp(deviceId);
+      notifyListeners();
+    }
   }
 
   /// 选择调试应用
@@ -240,20 +239,19 @@ class MainViewModel extends BaseViewModel {
     if (packageNameList.isEmpty) {
       return;
     }
-    packageNameController.show(
+    var value = await packageNameController.show(
       context,
       packageNameList,
       ListFilterItem(packageName),
-      itemClickCallback: (context, value) {
-        packageName = value.itemTitle;
-        App().setPackageName(packageName);
-        notifyListeners();
-        Navigator.of(context).pop();
-      },
       refreshCallback: () {
         getInstalledApp(deviceId);
       },
     );
+    if (value != null) {
+      packageName = value.itemTitle;
+      App().setPackageName(packageName);
+      notifyListeners();
+    }
   }
 
   void onDragDone(DropDoneDetails details) {

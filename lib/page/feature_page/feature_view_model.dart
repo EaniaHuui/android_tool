@@ -450,19 +450,18 @@ class FeatureViewModel extends BaseViewModel {
       list.sort((a, b) => a.compareTo(b));
       ListFilterController<ListFilterItem> controller =
           ListFilterController<ListFilterItem>();
-      controller.show(
+      var value = await controller.show(
         context,
         list.map((e) => ListFilterItem(e)).toList(),
         ListFilterItem(""),
         title: "系统属性列表",
         tipText: "请输入需要筛选的属性",
         notFoundText: "没有找到相关属性",
-        itemClickCallback: (context, value) {
-          Navigator.pop(context);
-          Clipboard.setData(ClipboardData(text: value.itemTitle));
-          showResultDialog(content: "已复制到剪切板");
-        },
       );
+      if (value!=null) {
+        Clipboard.setData(ClipboardData(text: value.itemTitle));
+        showResultDialog(content: "已复制到剪切板");
+      }
     }
   }
 

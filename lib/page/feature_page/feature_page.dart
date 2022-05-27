@@ -1,4 +1,5 @@
 import 'package:android_tool/page/common/base_page.dart';
+import 'package:android_tool/page/common/icon_font.dart';
 import 'package:android_tool/page/feature_page/feature_view_model.dart';
 import 'package:android_tool/widget/text_view.dart';
 import 'package:desktop_drop/desktop_drop.dart';
@@ -45,23 +46,39 @@ class _FeaturePageState extends BasePage<FeaturePage, FeatureViewModel> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const TextView("常用功能"),
+                          titleView("常用功能"),
                           const SizedBox(height: 5),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: <Widget>[
-                              buttonView("安装应用", () {
-                                viewModel.install();
-                              }),
-                              buttonView("输入文本", () {
-                                viewModel.inputText();
-                              }),
-                              buttonView("截图保存到电脑", () {
-                                viewModel.screenshot();
-                              }),
-                              buttonView("查看当前Activity", () {
-                                viewModel.getForegroundActivity();
-                              }),
+                              buttonView(
+                                IconFont.install,
+                                "安装应用",
+                                () {
+                                  viewModel.install();
+                                },
+                              ),
+                              buttonView(
+                                IconFont.input,
+                                "输入文本",
+                                () {
+                                  viewModel.inputText();
+                                },
+                              ),
+                              buttonView(
+                                IconFont.screenshot,
+                                "截图保存到电脑",
+                                () {
+                                  viewModel.screenshot();
+                                },
+                              ),
+                              buttonView(
+                                IconFont.currentActivity,
+                                "查看当前Activity",
+                                () {
+                                  viewModel.getForegroundActivity();
+                                },
+                              ),
                             ],
                           ),
                         ],
@@ -76,7 +93,7 @@ class _FeaturePageState extends BasePage<FeaturePage, FeatureViewModel> {
                             crossAxisAlignment: CrossAxisAlignment.baseline,
                             textBaseline: TextBaseline.alphabetic,
                             children: [
-                              const Expanded(child: TextView("应用相关")),
+                              Expanded(child: titleView("应用相关")),
                               _packageNameView(context),
                             ],
                           ),
@@ -84,52 +101,96 @@ class _FeaturePageState extends BasePage<FeaturePage, FeatureViewModel> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: <Widget>[
-                              buttonView("卸载应用", () {
-                                viewModel.uninstallApk();
-                              }),
-                              buttonView("启动应用", () {
-                                viewModel.startApp();
-                              }),
-                              buttonView("停止运行", () {
-                                viewModel.stopApp();
-                              }),
-                              buttonView("重启应用", () {
-                                viewModel.restartApp();
-                              }),
+                              buttonView(
+                                IconFont.uninstall,
+                                "卸载应用",
+                                () {
+                                  viewModel.uninstallApk();
+                                },
+                              ),
+                              buttonView(
+                                IconFont.start,
+                                "启动应用",
+                                () {
+                                  viewModel.startApp();
+                                },
+                              ),
+                              buttonView(
+                                IconFont.stop,
+                                "停止运行",
+                                () {
+                                  viewModel.stopApp();
+                                },
+                              ),
+                              buttonView(
+                                IconFont.rerun,
+                                "重启应用",
+                                () {
+                                  viewModel.restartApp();
+                                },
+                              ),
                             ],
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: <Widget>[
-                              buttonView("清除数据", () {
-                                viewModel.clearAppData();
-                              }),
-                              buttonView("清除数据并重启应用", () async {
-                                await viewModel.clearAppData();
-                                await viewModel.startApp();
-                              }),
-                              buttonView("重置权限", () {
-                                viewModel.resetAppPermission();
-                              }),
-                              buttonView("重置权限并重启应用", () async {
-                                await viewModel.stopApp();
-                                await viewModel.resetAppPermission();
-                                await viewModel.startApp();
-                              }),
+                              buttonView(
+                                IconFont.clean,
+                                "清除数据",
+                                () {
+                                  viewModel.clearAppData();
+                                },
+                              ),
+                              buttonView(
+                                IconFont.cleanRerun,
+                                "清除数据并重启应用",
+                                () async {
+                                  await viewModel.clearAppData();
+                                  await viewModel.startApp();
+                                },
+                              ),
+                              buttonView(
+                                IconFont.reset,
+                                "重置权限",
+                                () {
+                                  viewModel.resetAppPermission();
+                                },
+                              ),
+                              buttonView(
+                                IconFont.resetRerun,
+                                "重置权限并重启应用",
+                                () async {
+                                  await viewModel.stopApp();
+                                  await viewModel.resetAppPermission();
+                                  await viewModel.startApp();
+                                },
+                              ),
                             ],
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: <Widget>[
-                              buttonView("授权所有权限", () {
-                                viewModel.grantAppPermission();
-                              }),
-                              buttonView("查看应用安装路径", () {
-                                viewModel.getAppInstallPath();
-                              }),
-                              buttonView("保存应用APK到电脑", () {
-                                viewModel.saveAppApk();
-                              }),
+                              buttonView(
+                                IconFont.authorize,
+                                "授权所有权限",
+                                () {
+                                  viewModel.grantAppPermission();
+                                },
+                              ),
+                              buttonView(
+                                IconFont.apkPath,
+                                "查看应用安装路径",
+                                () {
+                                  viewModel.getAppInstallPath();
+                                },
+                              ),
+                              buttonView(
+                                IconFont.save,
+                                "保存应用APK到电脑",
+                                () {
+                                  viewModel.saveAppApk();
+                                },
+                              ),
                               Expanded(
                                 flex: 1,
                                 child: Container(),
@@ -144,40 +205,72 @@ class _FeaturePageState extends BasePage<FeaturePage, FeatureViewModel> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const TextView("系统相关"),
+                          titleView("系统相关"),
                           const SizedBox(height: 5),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: <Widget>[
-                              buttonView("开始录屏", () {
-                                viewModel.recordScreen();
-                              }),
-                              buttonView("结束录屏保存到电脑", () {
-                                viewModel.stopRecordAndSave();
-                              }),
-                              buttonView("查看AndroidId", () {
-                                viewModel.getAndroidId();
-                              }),
-                              buttonView("查看系统版本", () {
-                                viewModel.getDeviceVersion();
-                              }),
+                              buttonView(
+                                IconFont.screenRecording,
+                                "开始录屏",
+                                () {
+                                  viewModel.recordScreen();
+                                },
+                              ),
+                              buttonView(
+                                IconFont.stopRecording,
+                                "结束录屏保存到电脑",
+                                () {
+                                  viewModel.stopRecordAndSave();
+                                },
+                              ),
+                              buttonView(
+                                IconFont.android,
+                                "查看AndroidId",
+                                () {
+                                  viewModel.getAndroidId();
+                                },
+                              ),
+                              buttonView(
+                                IconFont.version,
+                                "查看系统版本",
+                                () {
+                                  viewModel.getDeviceVersion();
+                                },
+                              ),
                             ],
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: <Widget>[
-                              buttonView("查看IP地址", () {
-                                viewModel.getDeviceIpAddress();
-                              }),
-                              buttonView("查看Mac地址", () {
-                                viewModel.getDeviceMac();
-                              }),
-                              buttonView("重启手机", () {
-                                viewModel.reboot();
-                              }),
-                              buttonView("查看系统属性", () {
-                                viewModel.getSystemProperty();
-                              }),
+                              buttonView(
+                                IconFont.ip,
+                                "查看IP地址",
+                                () {
+                                  viewModel.getDeviceIpAddress();
+                                },
+                              ),
+                              buttonView(
+                                IconFont.macAddress,
+                                "查看Mac地址",
+                                () {
+                                  viewModel.getDeviceMac();
+                                },
+                              ),
+                              buttonView(
+                                IconFont.restart,
+                                "重启手机",
+                                () {
+                                  viewModel.reboot();
+                                },
+                              ),
+                              buttonView(
+                                IconFont.systemProperty,
+                                "查看系统属性",
+                                () {
+                                  viewModel.getSystemProperty();
+                                },
+                              ),
                             ],
                           ),
                         ],
@@ -188,40 +281,72 @@ class _FeaturePageState extends BasePage<FeaturePage, FeatureViewModel> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const TextView("按键相关"),
+                          titleView("按键相关"),
                           const SizedBox(height: 5),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: <Widget>[
-                              buttonView("HOME键", () {
-                                viewModel.pressHome();
-                              }),
-                              buttonView("返回键", () {
-                                viewModel.pressBack();
-                              }),
-                              buttonView("菜单键", () {
-                                viewModel.pressMenu();
-                              }),
-                              buttonView("电源键", () {
-                                viewModel.pressPower();
-                              }),
+                              buttonView(
+                                IconFont.home,
+                                "HOME键",
+                                () {
+                                  viewModel.pressHome();
+                                },
+                              ),
+                              buttonView(
+                                IconFont.back,
+                                "返回键",
+                                () {
+                                  viewModel.pressBack();
+                                },
+                              ),
+                              buttonView(
+                                IconFont.menu,
+                                "菜单键",
+                                () {
+                                  viewModel.pressMenu();
+                                },
+                              ),
+                              buttonView(
+                                IconFont.power,
+                                "电源键",
+                                () {
+                                  viewModel.pressPower();
+                                },
+                              ),
                             ],
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: <Widget>[
-                              buttonView("增加音量", () {
-                                viewModel.pressVolumeUp();
-                              }),
-                              buttonView("降低音量", () {
-                                viewModel.pressVolumeDown();
-                              }),
-                              buttonView("静音", () {
-                                viewModel.pressVolumeMute();
-                              }),
-                              buttonView("切换应用", () {
-                                viewModel.pressSwitchApp();
-                              }),
+                              buttonView(
+                                IconFont.volumeUp,
+                                "增加音量",
+                                () {
+                                  viewModel.pressVolumeUp();
+                                },
+                              ),
+                              buttonView(
+                                IconFont.volumeDown,
+                                "降低音量",
+                                () {
+                                  viewModel.pressVolumeDown();
+                                },
+                              ),
+                              buttonView(
+                                IconFont.mute,
+                                "静音",
+                                () {
+                                  viewModel.pressVolumeMute();
+                                },
+                              ),
+                              buttonView(
+                                IconFont.switchApp,
+                                "切换应用",
+                                () {
+                                  viewModel.pressSwitchApp();
+                                },
+                              ),
                             ],
                           ),
                         ],
@@ -232,31 +357,51 @@ class _FeaturePageState extends BasePage<FeaturePage, FeatureViewModel> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const TextView("屏幕输入"),
+                          titleView("屏幕输入"),
                           const SizedBox(height: 5),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: <Widget>[
-                              buttonView("向上滑动", () {
-                                viewModel.pressSwipeUp();
-                              }),
-                              buttonView("向下滑动", () {
-                                viewModel.pressSwipeDown();
-                              }),
-                              buttonView("向左滑动", () {
-                                viewModel.pressSwipeLeft();
-                              }),
-                              buttonView("向右滑动", () {
-                                viewModel.pressSwipeRight();
-                              }),
+                              buttonView(
+                                IconFont.swipeUp,
+                                "向上滑动",
+                                () {
+                                  viewModel.pressSwipeUp();
+                                },
+                              ),
+                              buttonView(
+                                IconFont.swipeDown,
+                                "向下滑动",
+                                () {
+                                  viewModel.pressSwipeDown();
+                                },
+                              ),
+                              buttonView(
+                                IconFont.swipeLeft,
+                                "向左滑动",
+                                () {
+                                  viewModel.pressSwipeLeft();
+                                },
+                              ),
+                              buttonView(
+                                IconFont.swipeRight,
+                                "向右滑动",
+                                () {
+                                  viewModel.pressSwipeRight();
+                                },
+                              ),
                             ],
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: <Widget>[
-                              buttonView("屏幕点击", () {
-                                viewModel.pressScreen();
-                              }),
+                              buttonView(
+                                IconFont.click,
+                                "屏幕点击",
+                                () {
+                                  viewModel.pressScreen();
+                                },
+                              ),
                               Expanded(flex: 3, child: Container()),
                             ],
                           ),
@@ -271,6 +416,22 @@ class _FeaturePageState extends BasePage<FeaturePage, FeatureViewModel> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget titleView(String title) {
+    return Row(
+      children: [
+        Container(
+            width: 3,
+            height: 16,
+            decoration: BoxDecoration(
+              color: viewModel.getColor(title),
+              borderRadius: BorderRadius.circular(5),
+            )),
+        const SizedBox(width: 5),
+        TextView(title),
+      ],
     );
   }
 
@@ -312,34 +473,77 @@ class _FeaturePageState extends BasePage<FeaturePage, FeatureViewModel> {
   Container _featureCardView({required Widget child}) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
         border: Border.all(color: Colors.black12),
         borderRadius: BorderRadius.circular(10),
       ),
-      padding: const EdgeInsets.all(10),
       margin: const EdgeInsets.symmetric(vertical: 8),
-      child: child,
+      child: Ink(
+        color: Colors.white,
+        padding: const EdgeInsets.all(10),
+        child: child,
+      ),
     );
   }
 
-  Widget buttonView(String title, Function() onPressed) {
+  Widget buttonView(IconData icon, String title, Function() onPressed) {
+    Color color = viewModel.getColor(title);
     return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: MaterialButton(
-          height: 45,
-          color: Colors.blue,
-          onPressed: onPressed,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(10),
+        onTap: onPressed,
+        child: Container(
+          padding: const EdgeInsets.all(10.0),
+          margin: const EdgeInsets.all(8.0),
+          decoration: BoxDecoration(
+            // color: Colors.blue.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(10),
           ),
-          child: TextView(
-            title,
-            color: Colors.white,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Container(
+                width: 40,
+                height: 40,
+                padding: const EdgeInsets.all(5),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    gradient: LinearGradient(
+                      colors: [
+                        color.withOpacity(0.5),
+                        color.withOpacity(1),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    )),
+                child: Icon(
+                  icon,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 5),
+              TextView(
+                title,
+              )
+            ],
           ),
         ),
       ),
     );
+    // return Expanded(
+    //   child: Padding(
+    //     padding: const EdgeInsets.all(8.0),
+    //     child: MaterialButton(
+    //       height: 45,
+    //       color: Colors.blue,
+    //       onPressed: onPressed,
+    //       shape: RoundedRectangleBorder(
+    //         borderRadius: BorderRadius.circular(10.0),
+    //       ),
+    //       child: ,
+    //     ),
+    //   ),
+    // );
   }
 
   @override

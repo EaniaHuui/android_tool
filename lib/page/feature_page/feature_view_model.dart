@@ -13,6 +13,24 @@ import 'package:process_run/shell_run.dart';
 class FeatureViewModel extends BaseViewModel with PackageHelpMixin {
   String deviceId;
 
+  List<Color> colors = [
+    Colors.red,
+    Colors.orange,
+    Colors.lightBlue,
+    Colors.green,
+    Colors.amber,
+    Colors.blue,
+    Colors.purple,
+    Colors.indigo,
+    Colors.blueGrey,
+    Colors.indigoAccent,
+    Colors.brown,
+    Colors.cyan,
+    Colors.lightGreen,
+    Colors.orangeAccent,
+    Colors.deepPurpleAccent,
+  ];
+
   FeatureViewModel(
     BuildContext context,
     this.deviceId,
@@ -687,5 +705,9 @@ class FeatureViewModel extends BaseViewModel with PackageHelpMixin {
       '900',
       '300',
     ]);
+  }
+
+  Color getColor(String name) {
+    return colors[name.hashCode % colors.length];
   }
 }

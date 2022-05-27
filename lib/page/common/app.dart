@@ -40,7 +40,6 @@ class App {
   /// 保存包名
   Future<void> setPackageName(String packageName) async {
     _packageName = packageName;
-    eventBus.fire(PackageNameEvent(packageName));
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(packageNameKey, packageName);
   }
@@ -76,12 +75,6 @@ class DeviceIdEvent {
   String deviceId;
 
   DeviceIdEvent(this.deviceId);
-}
-
-class PackageNameEvent {
-  String packageName;
-
-  PackageNameEvent(this.packageName);
 }
 
 class AdbPathEvent {

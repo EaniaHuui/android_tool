@@ -10,11 +10,8 @@ import 'package:substring_highlight/substring_highlight.dart';
 
 class AndroidLogPage extends StatefulWidget {
   final String deviceId;
-  final String packageName;
 
-  const AndroidLogPage(
-      {Key? key, required this.deviceId, required this.packageName})
-      : super(key: key);
+  const AndroidLogPage({Key? key, required this.deviceId}) : super(key: key);
 
   @override
   State<AndroidLogPage> createState() => _AndroidLogPageState();
@@ -60,7 +57,7 @@ class _AndroidLogPageState
               ),
             ),
             const SizedBox(width: 12),
-            const TextView("筛选级别："),
+            const TextView("级别："),
             Container(
               height: 33,
               decoration: BoxDecoration(
@@ -73,6 +70,9 @@ class _AndroidLogPageState
               ),
             ),
             const SizedBox(width: 12),
+            const TextView("应用："),
+            packageNameView(context),
+            const SizedBox(width: 12),
             Selector<AndroidLogViewModel, bool>(
               selector: (context, viewModel) => viewModel.isFilterPackage,
               builder: (context, isFilter, child) {
@@ -84,20 +84,7 @@ class _AndroidLogPageState
                 );
               },
             ),
-            const TextView("只显示当前应用Log"),
-            const SizedBox(width: 12),
-            Selector<AndroidLogViewModel, bool>(
-              selector: (context, viewModel) => viewModel.isColorLog,
-              builder: (context, isColorLog, child) {
-                return Checkbox(
-                  value: isColorLog,
-                  onChanged: (value) {
-                    viewModel.setColorLog(value ?? false);
-                  },
-                );
-              },
-            ),
-            const TextView("显示彩色Log"),
+            const TextView("筛选应用"),
             const SizedBox(width: 16),
           ],
         ),
@@ -189,9 +176,7 @@ class _AndroidLogPageState
                   delegate: FlutterListViewDelegate(
                     (context, index) {
                       var log = viewModel.logList[index];
-                      Color textColor = viewModel.isColorLog
-                          ? viewModel.getLogColor(log)
-                          : const Color(0xFF383838);
+                      Color textColor = viewModel.getLogColor(log);
                       return Listener(
                         onPointerDown: (event) {
                           if (event.kind == PointerDeviceKind.mouse &&
@@ -236,12 +221,50 @@ class _AndroidLogPageState
     );
   }
 
+  Widget packageNameView(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        viewModel.selectPackageName(context);
+      },
+      child: Container(
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+          border: Border.all(color: Colors.black.withOpacity(0.5)),
+        ),
+        height: 33,
+        child: Row(
+          children: [
+            const SizedBox(width: 10),
+            Selector<AndroidLogViewModel, String>(
+              selector: (context, viewModel) => viewModel.packageName,
+              builder: (context, packageName, child) {
+                return TextView(
+                  packageName.isEmpty ? "未选择筛选应用" : packageName,
+                  color: const Color(0xFF666666),
+                  fontSize: 12,
+                );
+              },
+            ),
+            const SizedBox(
+              width: 5,
+            ),
+            const Icon(
+              Icons.arrow_drop_down,
+              color: Color(0xFF666666),
+            ),
+            const SizedBox(width: 5),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   createViewModel() {
     return AndroidLogViewModel(
       context,
       widget.deviceId,
-      widget.packageName,
     );
   }
 

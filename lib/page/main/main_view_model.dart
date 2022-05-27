@@ -15,30 +15,13 @@ import 'devices_model.dart';
 
 class MainViewModel extends BaseViewModel {
   ListFilterController<DevicesModel> devicesController = ListFilterController();
-  ListFilterController<ListFilterItem> packageNameController =
-      ListFilterController();
-
-  List<ListFilterItem> packageNameList = [];
-  String packageName = "";
 
   List<DevicesModel> devicesList = [];
   DevicesModel? device;
 
   int selectedIndex = -1;
 
-  MainViewModel(context) : super(context) {
-    // devicesViewModel.addListener(() {
-    //   if (devicesViewModel.selectValue != null) {
-    //     App().setDeviceId(deviceId);
-    //     getInstalledApp(deviceId);
-    //   }
-    // });
-    App().eventBus.on<String>().listen((event) {
-      if (event == "refresh") {
-        getInstalledApp(deviceId);
-      }
-    });
-  }
+  MainViewModel(context) : super(context);
 
   String get deviceId => device?.id ?? "";
 
@@ -46,7 +29,6 @@ class MainViewModel extends BaseViewModel {
     await checkAdb();
     if (adbPath.isNotEmpty) {
       await getDeviceList();
-      await getInstalledApp(deviceId);
       selectedIndex = 1;
       notifyListeners();
     }
@@ -153,6 +135,7 @@ class MainViewModel extends BaseViewModel {
       } else {
         device = devicesList.first;
       }
+      App().setDeviceId(deviceId);
     }
     devicesController.setData(devicesList);
   }
@@ -183,31 +166,6 @@ class MainViewModel extends BaseViewModel {
     }
   }
 
-  /// 获取已安装的应用
-  Future<void> getInstalledApp(String devices) async {
-    var installedApp =
-        await execAdb(['-s', devices, 'shell', 'pm', 'list', 'packages', '-3']);
-    if (installedApp == null) return;
-    var outLines = installedApp.outLines;
-    packageNameList = outLines.map((e) {
-      return ListFilterItem(e.replaceAll("package:", ""));
-    }).toList();
-    packageNameList.sort((a, b) => a.itemTitle.compareTo(b.itemTitle));
-    packageNameController.setData(packageNameList);
-    if (packageNameList.isNotEmpty) {
-      App().getPackageName().then((value) {
-        if (value.isNotEmpty) {
-          packageName = packageNameList
-              .firstWhere((element) => element.itemTitle == value,
-                  orElse: () => packageNameList.first)
-              .itemTitle;
-        } else {
-          packageName = packageNameList.first.itemTitle;
-        }
-      });
-    }
-  }
-
   // void getClipboardText() async {
   //   var clipboardText = await execAdb(['shell', 'am', 'broadcast', '-a', 'clipper.get']);
   //   print(clipboardText.outLines);
@@ -215,6 +173,7 @@ class MainViewModel extends BaseViewModel {
 
   /// 选择设备
   Future<void> devicesSelect(BuildContext context) async {
+    await getDeviceList();
     if (devicesList.isEmpty) {
       return;
     }
@@ -229,27 +188,7 @@ class MainViewModel extends BaseViewModel {
     if (value != null) {
       device = value;
       App().setDeviceId(deviceId);
-      await getInstalledApp(deviceId);
-      notifyListeners();
-    }
-  }
 
-  /// 选择调试应用
-  packageSelect(BuildContext context) async {
-    if (packageNameList.isEmpty) {
-      return;
-    }
-    var value = await packageNameController.show(
-      context,
-      packageNameList,
-      ListFilterItem(packageName),
-      refreshCallback: () {
-        getInstalledApp(deviceId);
-      },
-    );
-    if (value != null) {
-      packageName = value.itemTitle;
-      App().setPackageName(packageName);
       notifyListeners();
     }
   }
@@ -269,8 +208,8 @@ class MainViewModel extends BaseViewModel {
   void clearData() {
     device = null;
     devicesList.clear();
-    packageName = "";
-    packageNameList.clear();
+    devicesController.setData([]);
+    App().setDeviceId("");
   }
 
   void onLeftItemClick(int index) {

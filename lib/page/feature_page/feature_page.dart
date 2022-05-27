@@ -7,12 +7,10 @@ import 'package:provider/provider.dart';
 
 class FeaturePage extends StatefulWidget {
   final String deviceId;
-  final String packageName;
 
   const FeaturePage({
     Key? key,
     required this.deviceId,
-    required this.packageName,
   }) : super(key: key);
 
   @override
@@ -21,6 +19,12 @@ class FeaturePage extends StatefulWidget {
 
 class _FeaturePageState extends BasePage<FeaturePage, FeatureViewModel> {
   @override
+  void initState() {
+    super.initState();
+    viewModel.init();
+  }
+
+  @override
   Widget contentView(BuildContext context) {
     return DropTarget(
       onDragDone: (details) {
@@ -28,8 +32,6 @@ class _FeaturePageState extends BasePage<FeaturePage, FeatureViewModel> {
       },
       child: Column(
         children: [
-          // const SizedBox(height: 20),
-          // _packageNameView(context),
           Expanded(
             child: SingleChildScrollView(
               child: Padding(
@@ -37,12 +39,13 @@ class _FeaturePageState extends BasePage<FeaturePage, FeatureViewModel> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const SizedBox(height: 20),
                     _featureCardView(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const TextView("应用相关"),
+                          const TextView("常用功能"),
                           const SizedBox(height: 5),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -50,6 +53,37 @@ class _FeaturePageState extends BasePage<FeaturePage, FeatureViewModel> {
                               buttonView("安装应用", () {
                                 viewModel.install();
                               }),
+                              buttonView("输入文本", () {
+                                viewModel.inputText();
+                              }),
+                              buttonView("截图保存到电脑", () {
+                                viewModel.screenshot();
+                              }),
+                              buttonView("查看当前Activity", () {
+                                viewModel.getForegroundActivity();
+                              }),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    _featureCardView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.baseline,
+                            textBaseline: TextBaseline.alphabetic,
+                            children: [
+                              const Expanded(child: TextView("应用相关")),
+                              _packageNameView(context),
+                            ],
+                          ),
+                          const SizedBox(height: 5),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: <Widget>[
                               buttonView("卸载应用", () {
                                 viewModel.uninstallApk();
                               }),
@@ -59,14 +93,14 @@ class _FeaturePageState extends BasePage<FeaturePage, FeatureViewModel> {
                               buttonView("停止运行", () {
                                 viewModel.stopApp();
                               }),
+                              buttonView("重启应用", () {
+                                viewModel.restartApp();
+                              }),
                             ],
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: <Widget>[
-                              buttonView("重启应用", () {
-                                viewModel.restartApp();
-                              }),
                               buttonView("清除数据", () {
                                 viewModel.clearAppData();
                               }),
@@ -77,16 +111,16 @@ class _FeaturePageState extends BasePage<FeaturePage, FeatureViewModel> {
                               buttonView("重置权限", () {
                                 viewModel.resetAppPermission();
                               }),
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: <Widget>[
                               buttonView("重置权限并重启应用", () async {
                                 await viewModel.stopApp();
                                 await viewModel.resetAppPermission();
                                 await viewModel.startApp();
                               }),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: <Widget>[
                               buttonView("授权所有权限", () {
                                 viewModel.grantAppPermission();
                               }),
@@ -96,6 +130,10 @@ class _FeaturePageState extends BasePage<FeaturePage, FeatureViewModel> {
                               buttonView("保存应用APK到电脑", () {
                                 viewModel.saveAppApk();
                               }),
+                              Expanded(
+                                flex: 1,
+                                child: Container(),
+                              )
                             ],
                           ),
                         ],
@@ -111,25 +149,11 @@ class _FeaturePageState extends BasePage<FeaturePage, FeatureViewModel> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: <Widget>[
-                              buttonView("输入文本", () {
-                                viewModel.inputText();
-                              }),
-                              buttonView("截图保存到电脑", () {
-                                viewModel.screenshot();
-                              }),
                               buttonView("开始录屏", () {
                                 viewModel.recordScreen();
                               }),
                               buttonView("结束录屏保存到电脑", () {
                                 viewModel.stopRecordAndSave();
-                              }),
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: <Widget>[
-                              buttonView("查看当前Activity", () {
-                                viewModel.getForegroundActivity();
                               }),
                               buttonView("查看AndroidId", () {
                                 viewModel.getAndroidId();
@@ -137,14 +161,14 @@ class _FeaturePageState extends BasePage<FeaturePage, FeatureViewModel> {
                               buttonView("查看系统版本", () {
                                 viewModel.getDeviceVersion();
                               }),
-                              buttonView("查看IP地址", () {
-                                viewModel.getDeviceIpAddress();
-                              }),
                             ],
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: <Widget>[
+                              buttonView("查看IP地址", () {
+                                viewModel.getDeviceIpAddress();
+                              }),
                               buttonView("查看Mac地址", () {
                                 viewModel.getDeviceMac();
                               }),
@@ -154,7 +178,6 @@ class _FeaturePageState extends BasePage<FeaturePage, FeatureViewModel> {
                               buttonView("查看系统属性", () {
                                 viewModel.getSystemProperty();
                               }),
-                              Expanded(child: Container()),
                             ],
                           ),
                         ],
@@ -252,66 +275,35 @@ class _FeaturePageState extends BasePage<FeaturePage, FeatureViewModel> {
   }
 
   Widget _packageNameView(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+    return InkWell(
+      onTap: () {
+        viewModel.packageSelect(context);
+      },
+      onHover: (value) {},
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          const TextView(
-            "调试应用",
-            fontSize: 16,
+        children: [
+          const SizedBox(width: 10),
+          Selector<FeatureViewModel, String>(
+            selector: (context, viewModel) => viewModel.packageName,
+            builder: (context, packageName, child) {
+              return Container(
+                constraints: const BoxConstraints(minHeight: 20),
+                child: TextView(
+                  packageName.isEmpty ? "未选择调试应用" : packageName,
+                  color: const Color(0xFF666666),
+                ),
+              );
+            },
           ),
           const SizedBox(
-            width: 10,
-            height: 30,
+            width: 5,
           ),
-          InkWell(
-            onTap: () {
-              // viewModel.packageSelect(context);
-            },
-            child: Container(
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5),
-                border: Border.all(color: Colors.black.withOpacity(0.5)),
-              ),
-              height: 33,
-              child: Row(
-                children: [
-                  const SizedBox(width: 10),
-                  Selector<FeatureViewModel, String>(
-                    selector: (context, viewModel) => viewModel.packageName,
-                    builder: (context, packageName, child) {
-                      return TextView(
-                        packageName.isEmpty ? "未选择调试应用" : packageName,
-                        color: const Color(0xFF666666),
-                      );
-                    },
-                  ),
-                  const SizedBox(
-                    width: 5,
-                  ),
-                  const Icon(
-                    Icons.arrow_drop_down,
-                    color: Color(0xFF666666),
-                  ),
-                  const SizedBox(width: 5),
-                ],
-              ),
-            ),
+          const Icon(
+            Icons.expand_more,
+            color: Color(0xFF999999),
           ),
-          const SizedBox(
-            width: 10,
-          ),
-          InkWell(
-            onTap: () {
-              // viewModel.getInstalledApp(viewModel.deviceId);
-            },
-            child: const Icon(
-              Icons.refresh,
-              color: Colors.black38,
-            ),
-          ),
+          const SizedBox(width: 5),
         ],
       ),
     );
@@ -355,7 +347,6 @@ class _FeaturePageState extends BasePage<FeaturePage, FeatureViewModel> {
     return FeatureViewModel(
       context,
       widget.deviceId,
-      widget.packageName,
     );
   }
 }

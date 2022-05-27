@@ -9,7 +9,7 @@ class DevicesInfoViewModel extends FeatureViewModel {
     BuildContext context,
     String deviceId,
     String packageName,
-  ) : super(context, deviceId, packageName);
+  ) : super(context, deviceId);
 
   Future<void> getScreenshot() async {
     PaintingBinding.instance?.imageCache?.clear();

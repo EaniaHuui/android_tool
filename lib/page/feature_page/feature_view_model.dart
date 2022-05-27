@@ -1,5 +1,6 @@
 import 'package:android_tool/page/common/app.dart';
 import 'package:android_tool/page/common/base_view_model.dart';
+import 'package:android_tool/page/common/package_help_mixin.dart';
 import 'package:android_tool/widget/input_dialog.dart';
 import 'package:android_tool/widget/list_filter_dialog.dart';
 import 'package:desktop_drop/desktop_drop.dart';
@@ -9,25 +10,45 @@ import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:process_run/shell_run.dart';
 
-class FeatureViewModel extends BaseViewModel {
+class FeatureViewModel extends BaseViewModel with PackageHelpMixin {
   String deviceId;
-  String packageName;
 
   FeatureViewModel(
     BuildContext context,
     this.deviceId,
-    this.packageName,
   ) : super(context) {
-    App().getAdbPath().then((value) => adbPath = value);
-    App().eventBus.on<DeviceIdEvent>().listen((event) {
+    App().eventBus.on<DeviceIdEvent>().listen((event) async {
       deviceId = event.deviceId;
-    });
-    App().eventBus.on<PackageNameEvent>().listen((event) {
-      packageName = event.packageName;
+      if (deviceId.isEmpty) {
+        resetPackage();
+        return;
+      }
+      await getInstalledApp(deviceId);
     });
     App().eventBus.on<AdbPathEvent>().listen((event) {
       adbPath = event.path;
     });
+    App().eventBus.on<String>().listen((event) {
+      if (event == "refresh") {
+        getInstalledApp(deviceId);
+      }
+    });
+  }
+
+  Future<void> init() async {
+    adbPath = await App().getAdbPath();
+    getInstalledApp(deviceId);
+  }
+
+  /// 选择调试应用
+  packageSelect(BuildContext context) async {
+    await getInstalledApp(deviceId);
+    var value = await showPackageSelect(context, deviceId);
+    if (value.isNotEmpty) {
+      packageName = value;
+      App().setPackageName(packageName);
+      notifyListeners();
+    }
   }
 
   /// 选择文件安装应用
@@ -458,7 +479,7 @@ class FeatureViewModel extends BaseViewModel {
         tipText: "请输入需要筛选的属性",
         notFoundText: "没有找到相关属性",
       );
-      if (value!=null) {
+      if (value != null) {
         Clipboard.setData(ClipboardData(text: value.itemTitle));
         showResultDialog(content: "已复制到剪切板");
       }

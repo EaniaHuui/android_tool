@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:android_tool/page/common/app.dart';
 import 'package:android_tool/page/common/base_view_model.dart';
+import 'package:android_tool/page/common/package_help_mixin.dart';
 import 'package:android_tool/widget/pop_up_menu_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,13 +10,12 @@ import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:process_run/shell.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class AndroidLogViewModel extends BaseViewModel {
+class AndroidLogViewModel extends BaseViewModel with PackageHelpMixin {
   static const String colorLogKey = 'colorLog';
   static const String filterPackageKey = 'filterPackage';
   static const String caseSensitiveKey = 'caseSensitive';
 
   String deviceId;
-  String packageName;
 
   bool isFilterPackage = false;
   String filterContent = "";
@@ -30,8 +30,6 @@ class AndroidLogViewModel extends BaseViewModel {
   bool isCaseSensitive = false;
 
   bool isShowLast = true;
-
-  bool isColorLog = true;
 
   String pid = "";
 
@@ -52,30 +50,25 @@ class AndroidLogViewModel extends BaseViewModel {
   AndroidLogViewModel(
     BuildContext context,
     this.deviceId,
-    this.packageName,
   ) : super(context) {
-    App().getAdbPath().then((value) => adbPath = value);
-    App().eventBus.on<DeviceIdEvent>().listen((event) {
+    App().eventBus.on<DeviceIdEvent>().listen((event) async {
       logList.clear();
       deviceId = event.deviceId;
-      shell.kill();
-      listenerLog();
-    });
-    App().eventBus.on<PackageNameEvent>().listen((event) async {
-      packageName = event.packageName;
-      if (isFilterPackage) {
-        logList.clear();
-        pid = await getPid();
+      kill();
+      if (deviceId.isEmpty) {
+        resetPackage();
+        return;
       }
+      await getInstalledApp(deviceId);
+      listenerLog();
     });
     App().eventBus.on<AdbPathEvent>().listen((event) {
       logList.clear();
       adbPath = event.path;
-      shell.kill();
+      kill();
       listenerLog();
     });
     SharedPreferences.getInstance().then((preferences) {
-      isColorLog = preferences.getBool(colorLogKey) ?? true;
       isFilterPackage = preferences.getBool(filterPackageKey) ?? false;
       isCaseSensitive = preferences.getBool(caseSensitiveKey) ?? false;
     });
@@ -90,15 +83,32 @@ class AndroidLogViewModel extends BaseViewModel {
     filterLevelViewModel.list = filterLevel;
     filterLevelViewModel.selectValue = filterLevel.first;
     filterLevelViewModel.addListener(() {
-      shell.kill();
+      kill();
       listenerLog();
     });
   }
 
   void init() async {
+    adbPath = await App().getAdbPath();
+    await getInstalledApp(deviceId);
     pid = await getPid();
     execAdb(["-s", deviceId, "logcat", "-c"]);
     listenerLog();
+  }
+
+  void selectPackageName(BuildContext context) async {
+    var package = await showPackageSelect(context, deviceId);
+    if (packageName == package || package.isEmpty) {
+      return;
+    }
+    packageName = package;
+    if (isFilterPackage) {
+      logList.clear();
+      pid = await getPid();
+      kill();
+      listenerLog();
+      notifyListeners();
+    }
   }
 
   void listenerLog() {
@@ -138,9 +148,6 @@ class AndroidLogViewModel extends BaseViewModel {
   }
 
   Color getLogColor(String log) {
-    if (!isColorLog) {
-      return const Color(0xFF383838);
-    }
     var split = log.split(" ");
     split.removeWhere((element) => element.isEmpty);
     String type = "";
@@ -167,7 +174,7 @@ class AndroidLogViewModel extends BaseViewModel {
 
   /// 根据包名获取进程应用进程id
   Future<String> getPid() async {
-    var result = await exec("adb", [
+    var result = await execAdb([
       "-s",
       deviceId,
       "shell",
@@ -195,14 +202,6 @@ class AndroidLogViewModel extends BaseViewModel {
     }
     kill();
     listenerLog();
-    notifyListeners();
-  }
-
-  void setColorLog(bool bool) {
-    isColorLog = bool;
-    SharedPreferences.getInstance().then((preferences) {
-      preferences.setBool(caseSensitiveKey, bool);
-    });
     notifyListeners();
   }
 

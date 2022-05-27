@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:android_tool/page/common/app.dart';
 import 'package:android_tool/page/common/base_view_model.dart';
 import 'package:android_tool/widget/pop_up_menu_button.dart';
@@ -34,6 +36,8 @@ class AndroidLogViewModel extends BaseViewModel {
   String pid = "";
 
   int findIndex = -1;
+
+  Process? _process;
 
   List<FilterLevel> filterLevel = [
     FilterLevel("Verbose", "*:V"),
@@ -99,13 +103,17 @@ class AndroidLogViewModel extends BaseViewModel {
 
   void listenerLog() {
     String level = filterLevelViewModel.selectValue?.value ?? "";
-    execAdb(["-s", deviceId, "logcat", "$level"], onProcess: (process) {
+    var list = ["-s", deviceId, "logcat", "$level"];
+    if (isFilterPackage) {
+      list.add("--pid=$pid");
+    }
+    execAdb(list, onProcess: (process) {
+      _process = process;
       var outLine = process.outLines;
       outLine.listen((line) {
-        if ((isFilterPackage ? line.contains(pid) : true) &&
-            (filterContent.isNotEmpty
-                ? line.toLowerCase().contains(filterContent.toLowerCase())
-                : true)) {
+        if (filterContent.isNotEmpty
+            ? line.toLowerCase().contains(filterContent.toLowerCase())
+            : true) {
           if (logList.length > 1000) {
             logList.removeAt(0);
           }
@@ -172,17 +180,21 @@ class AndroidLogViewModel extends BaseViewModel {
   }
 
   void kill() {
+    _process?.kill();
     shell.kill();
   }
 
-  void setFilterPackage(bool value) {
+  Future<void> setFilterPackage(bool value) async {
     isFilterPackage = value;
     SharedPreferences.getInstance().then((preferences) {
       preferences.setBool(filterPackageKey, value);
     });
     if (value) {
+      pid = await getPid();
       logList.removeWhere((element) => !element.contains(pid));
     }
+    kill();
+    listenerLog();
     notifyListeners();
   }
 

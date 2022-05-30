@@ -8,9 +8,8 @@
 [下载试用](https://github.com/EaniaHuui/android_tool/releases)
 
 ### 演示
-![alt screenshot1](https://github.com/EaniaHuui/android_tool/blob/main/screenshot/screenshot1.gif)
-![alt screenshot2](https://github.com/EaniaHuui/android_tool/blob/main/screenshot/screenshot2.gif)
-![alt screenshot2](https://github.com/EaniaHuui/android_tool/blob/main/screenshot/screenshot3.png)
+![alt screenshot1](https://github.com/EaniaHuui/android_tool/blob/main/screenshot/screenshot1.png)
+![alt screenshot2](https://github.com/EaniaHuui/android_tool/blob/main/screenshot/screenshot2.png)
 
 ## 实现
 

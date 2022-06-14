@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:android_tool/page/common/app.dart';
@@ -7,7 +8,6 @@ import 'package:android_tool/widget/pop_up_menu_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
-import 'package:process_run/shell.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AndroidLogViewModel extends BaseViewModel with PackageHelpMixin {
@@ -119,8 +119,7 @@ class AndroidLogViewModel extends BaseViewModel with PackageHelpMixin {
     }
     execAdb(list, onProcess: (process) {
       _process = process;
-      var outLine = process.outLines;
-      outLine.listen((line) {
+      process.stdout.transform(const Utf8Decoder()).listen((line) {
         if (filterContent.isNotEmpty
             ? line.toLowerCase().contains(filterContent.toLowerCase())
             : true) {

@@ -349,6 +349,19 @@ class _FeaturePageState extends BasePage<FeaturePage, FeatureViewModel> {
                               ),
                             ],
                           ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: <Widget>[
+                              buttonView(
+                                IconFont.remoteControl,
+                                "遥控器",
+                                    () {
+                                  viewModel.showRemoteControlDialog(context);
+                                },
+                              ),
+                              Expanded(flex: 3, child: Container()),
+                            ],
+                          ),
                         ],
                       ),
                     ),

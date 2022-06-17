@@ -3,6 +3,7 @@ import 'package:android_tool/page/common/base_view_model.dart';
 import 'package:android_tool/page/common/package_help_mixin.dart';
 import 'package:android_tool/widget/input_dialog.dart';
 import 'package:android_tool/widget/list_filter_dialog.dart';
+import 'package:android_tool/widget/remote_control_dialog.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
@@ -707,7 +708,82 @@ class FeatureViewModel extends BaseViewModel with PackageHelpMixin {
     ]);
   }
 
+  /// 遥控器按键上
+  void pressRemoteUp() async {
+    await execAdb([
+      '-s',
+      deviceId,
+      'shell',
+      'input',
+      'keyevent',
+      '19',
+    ]);
+  }
+
+  /// 遥控器按键下
+  void pressRemoteDown() async {
+    await execAdb([
+      '-s',
+      deviceId,
+      'shell',
+      'input',
+      'keyevent',
+      '20',
+    ]);
+  }
+
+  /// 遥控器按键左
+  void pressRemoteLeft() async {
+    await execAdb([
+      '-s',
+      deviceId,
+      'shell',
+      'input',
+      'keyevent',
+      '21',
+    ]);
+  }
+
+  /// 遥控器按键右
+  void pressRemoteRight() async {
+    await execAdb([
+      '-s',
+      deviceId,
+      'shell',
+      'input',
+      'keyevent',
+      '22',
+    ]);
+  }
+
+  /// 遥控器按键OK
+  void pressRemoteOk() async {
+    await execAdb([
+      '-s',
+      deviceId,
+      'shell',
+      'input',
+      'keyevent',
+      '23',
+    ]);
+  }
+
   Color getColor(String name) {
     return colors[name.hashCode % colors.length];
+  }
+
+  void showRemoteControlDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return RemoteControlDialog(
+          onTapLeft: pressRemoteLeft,
+          onTapRight: pressRemoteRight,
+          onTapUp: pressRemoteUp,
+          onTapDown: pressRemoteDown,
+          onTapOk: pressRemoteOk,
+        );
+      },
+    );
   }
 }

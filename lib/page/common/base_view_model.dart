@@ -122,4 +122,17 @@ class BaseViewModel extends ChangeNotifier {
       },
     );
   }
+
+  /// 弹出提示框
+  Future<bool?> showTipsDialog(String content) async {
+   return await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return ConfirmDialog(
+          title: "提示",
+          content: content,
+        );
+      },
+    );
+  }
 }

@@ -79,6 +79,9 @@ class FeatureViewModel extends BaseViewModel with PackageHelpMixin {
 
   /// 卸载应用
   void uninstallApk() async {
+    bool isConfirm = await showTipsDialog("确定卸载应用？") ?? false;
+    if (!isConfirm) return;
+
     var result = await execAdb([
       '-s',
       deviceId,
@@ -162,6 +165,9 @@ class FeatureViewModel extends BaseViewModel with PackageHelpMixin {
 
   /// 清除数据
   Future<void> clearAppData() async {
+    bool isConfirm = await showTipsDialog("确定清除App数据？") ?? false;
+    if (!isConfirm) return;
+
     await execAdb([
       '-s',
       deviceId,

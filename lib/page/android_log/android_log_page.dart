@@ -166,58 +166,62 @@ class _AndroidLogPageState
           ],
         ),
         const SizedBox(height: 10),
-        Expanded(
-          child: Container(
-            color: const Color(0xFFF0F0F0),
-            child: Consumer<AndroidLogViewModel>(
-              builder: (context, viewModel, child) {
-                return FlutterListView(
-                  controller: viewModel.scrollController,
-                  delegate: FlutterListViewDelegate(
-                    (context, index) {
-                      var log = viewModel.logList[index];
-                      Color textColor = viewModel.getLogColor(log);
-                      return Listener(
-                        onPointerDown: (event) {
-                          if (event.kind == PointerDeviceKind.mouse &&
-                              event.buttons == kSecondaryMouseButton) {
-                            viewModel.copyLog(log);
-                          }
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 3, horizontal: 15),
-                          child: SubstringHighlight(
-                            text: log,
-                            textStyle: TextStyle(
-                              color: textColor,
-                            ),
-                            textStyleHighlight: TextStyle(
-                              color: viewModel.findIndex == index
-                                  ? Colors.white
-                                  : textColor,
-                              backgroundColor: viewModel.findIndex == index
-                                  ? Colors.red
-                                  : Colors.yellowAccent,
-                              fontWeight: viewModel.findIndex == index
-                                  ? FontWeight.bold
-                                  : null,
-                            ),
-                            caseSensitive: viewModel.isCaseSensitive,
-                            term: viewModel.findController.text,
-                          ),
-                        ),
-                      );
-                    },
-                    childCount: viewModel.logList.length,
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
+        _buildLogContentView(),
         const SizedBox(height: 10),
       ],
+    );
+  }
+
+  Expanded _buildLogContentView() {
+    return Expanded(
+      child: Container(
+        color: const Color(0xFFF0F0F0),
+        child: Consumer<AndroidLogViewModel>(
+          builder: (context, viewModel, child) {
+            return FlutterListView(
+              controller: viewModel.scrollController,
+              delegate: FlutterListViewDelegate(
+                (context, index) {
+                  var log = viewModel.logList[index];
+                  Color textColor = viewModel.getLogColor(log);
+                  return Listener(
+                    onPointerDown: (event) {
+                      if (event.kind == PointerDeviceKind.mouse &&
+                          event.buttons == kSecondaryMouseButton) {
+                        viewModel.copyLog(log);
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 3, horizontal: 15),
+                      child: SubstringHighlight(
+                        text: log,
+                        textStyle: TextStyle(
+                          color: textColor,
+                        ),
+                        textStyleHighlight: TextStyle(
+                          color: viewModel.findIndex == index
+                              ? Colors.white
+                              : textColor,
+                          backgroundColor: viewModel.findIndex == index
+                              ? Colors.red
+                              : Colors.yellowAccent,
+                          fontWeight: viewModel.findIndex == index
+                              ? FontWeight.bold
+                              : null,
+                        ),
+                        caseSensitive: viewModel.isCaseSensitive,
+                        term: viewModel.findController.text,
+                      ),
+                    ),
+                  );
+                },
+                childCount: viewModel.logList.length,
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 

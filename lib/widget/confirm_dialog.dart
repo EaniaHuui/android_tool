@@ -4,11 +4,10 @@ import 'package:flutter/material.dart';
 class ConfirmDialog extends StatelessWidget {
   final String? title;
   final String? content;
-  final bool? isSuccess;
   final Function? onConfirm;
 
   const ConfirmDialog(
-      {Key? key, this.title, this.content, this.isSuccess, this.onConfirm})
+      {Key? key, this.title, this.content, this.onConfirm})
       : super(key: key);
 
   @override

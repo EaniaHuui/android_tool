@@ -1,8 +1,10 @@
+import 'package:android_tool/page/common/package_help_mixin.dart';
 import 'package:android_tool/widget/text_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:selector_plus/selector_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ListFilterDialog<T extends ListFilterItem> extends StatefulWidget {
   final ListFilterController controller;
@@ -10,6 +12,7 @@ class ListFilterDialog<T extends ListFilterItem> extends StatefulWidget {
   final String? title;
   final String? tipText;
   final String? notFoundText;
+  final bool isSelectApp;
   final Function()? refreshCallback;
 
   const ListFilterDialog({
@@ -18,6 +21,7 @@ class ListFilterDialog<T extends ListFilterItem> extends StatefulWidget {
     this.title,
     this.tipText,
     this.notFoundText,
+    this.isSelectApp = false,
     this.refreshCallback,
   }) : super(key: key);
 
@@ -126,12 +130,37 @@ class _ListFilterDialogState<T extends ListFilterItem>
                       },
                       selector: widget.controller.selectorList,
                     ),
+                    Offstage(
+                      offstage: !widget.isSelectApp,
+                      child: _buildShowSelectSystemAppView(),
+                    ),
                   ],
                 ),
               ),
             ),
           );
         });
+  }
+
+  Widget _buildShowSelectSystemAppView() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        const TextView("显示系统应用"),
+        Selector<ListFilterController, bool>(
+          selector: (context, controller) => controller._isShowSystemApp,
+          builder: (context, isFilter, child) {
+            return Checkbox(
+              value: isFilter,
+              onChanged: (value) async {
+                await widget.controller._setShowSystemApp(value ?? false);
+                widget.refreshCallback?.call();
+              },
+            );
+          },
+        )
+      ],
+    );
   }
 }
 
@@ -149,6 +178,8 @@ class ListFilterController<T extends ListFilterItem> extends ChangeNotifier {
   List<T> dataList = [];
 
   T? current;
+
+  bool _isShowSystemApp = false;
 
   ListFilterController() {
     controller.addListener(() {
@@ -172,11 +203,15 @@ class ListFilterController<T extends ListFilterItem> extends ChangeNotifier {
     String? title,
     String? tipText,
     String? notFoundText,
+    bool isSelectApp = false,
     Function()? refreshCallback,
   }) async {
     dataList = data;
     selectorList.value = data;
     this.current = current;
+    if (isSelectApp) {
+      _getIsShowSystemApp();
+    }
     return await showDialog<T>(
       context: context,
       builder: (context) => ListFilterDialog(
@@ -184,16 +219,35 @@ class ListFilterController<T extends ListFilterItem> extends ChangeNotifier {
         title: title,
         tipText: tipText,
         notFoundText: notFoundText,
+        isSelectApp: isSelectApp,
         refreshCallback: refreshCallback,
       ),
     );
   }
 
-  void setData(List<T> data) {
+  void setData(List<T> data, {T? current}) {
+    if (current != null) {
+      this.current = current;
+    }
     dataList = data;
     selectorList.value = dataList
         .where((element) => element.itemTitle.contains(controller.text))
         .toList();
     notifyListeners();
+  }
+
+  _setShowSystemApp(bool bool) async {
+    _isShowSystemApp = bool;
+    notifyListeners();
+    var prefs = await SharedPreferences.getInstance();
+    prefs.setBool(PackageHelpMixin.isShowSystemApp, bool);
+  }
+
+  void _getIsShowSystemApp() {
+    SharedPreferences.getInstance().then((value) {
+      _isShowSystemApp =
+          value.getBool(PackageHelpMixin.isShowSystemApp) ?? false;
+      notifyListeners();
+    });
   }
 }

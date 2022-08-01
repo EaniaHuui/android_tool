@@ -456,13 +456,24 @@ class FeatureViewModel extends BaseViewModel with PackageHelpMixin {
 
   /// 查看设备Mac地址
   Future<void> getDeviceMac() async {
+    // 感谢简书网友：北京朝阳区精神病院院长 的分享BUG以及优化方案。
+    // 查看设备Mac地址
+    // 提供两种获取 设备Mac方法
+    // adb shell ip address show wlan0 | grep "link/ether" | awk '{printf $2}'
+    // adb -s deviceId shell "ip addr show wlan0 | grep 'link/ether '| cut -d' ' -f6"
     var result = await execAdb([
       '-s',
       deviceId,
       'shell',
-      'cat',
-      '/sys/class/net/wlan0/address',
+      "ip addr show wlan0 | grep 'link/ether '| cut -d' ' -f6",
     ]);
+    // var result = await execAdb([
+    //   '-s',
+    //   deviceId,
+    //   'shell',
+    //   'cat',
+    //   '/sys/class/net/wlan0/address',
+    // ]);
     showResultDialog(
       content: result != null && result.exitCode == 0 ? result.stdout : "获取失败",
     );

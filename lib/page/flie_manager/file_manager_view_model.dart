@@ -60,6 +60,12 @@ class FileManagerViewModel extends BaseViewModel {
           typeLinkFile,
           Icons.attach_file,
         ));
+      } else if (value.endsWith("*")) {
+        files.add(FileModel(
+          value.substring(0, value.length - 1),
+          typeFile,
+          Icons.insert_drive_file,
+        ));
       } else {
         files.add(FileModel(
           value,

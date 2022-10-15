@@ -1,21 +1,16 @@
+import 'package:android_tool/page/common/key_code.dart';
 import 'package:android_tool/widget/text_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+typedef RemoteControlTapCallback = Function(KeyCode);
+
 class RemoteControlDialog extends StatelessWidget {
-  final GestureTapCallback? onTapUp;
-  final GestureTapCallback? onTapDown;
-  final GestureTapCallback? onTapLeft;
-  final GestureTapCallback? onTapRight;
-  final GestureTapCallback? onTapOk;
+  final RemoteControlTapCallback? onTap;
 
   const RemoteControlDialog({
     Key? key,
-    this.onTapUp,
-    this.onTapDown,
-    this.onTapLeft,
-    this.onTapRight,
-    this.onTapOk,
+    this.onTap,
   }) : super(key: key);
 
   @override
@@ -30,47 +25,16 @@ class RemoteControlDialog extends StatelessWidget {
             buildCloseView(context),
             Padding(
               padding: const EdgeInsets.all(50),
-              child: Container(
-                height: 300,
+              child: SizedBox(
                 width: 300,
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade100,
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(150),
-                ),
+                height: 480,
                 child: Column(
                   children: [
-                    buildDirectionView(
-                      width: 150,
-                      height: 60,
-                      icon: Icons.keyboard_arrow_up,
-                      onTap: onTapUp,
-                    ),
-                    Expanded(
-                      child: Row(
-                        children: [
-                          buildDirectionView(
-                            width: 60,
-                            height: 150,
-                            icon: Icons.keyboard_arrow_left,
-                            onTap: onTapLeft,
-                          ),
-                          buildOKButton(),
-                          buildDirectionView(
-                            width: 60,
-                            height: 150,
-                            icon: Icons.keyboard_arrow_right,
-                            onTap: onTapRight,
-                          ),
-                        ],
-                      ),
-                    ),
-                    buildDirectionView(
-                      width: 150,
-                      height: 60,
-                      icon: Icons.keyboard_arrow_down,
-                      onTap: onTapDown,
-                    ),
+                    _buildDirectionWidget(),
+                    const SizedBox(height: 20),
+                    _buildVolumeWidget(),
+                    const SizedBox(height: 20),
+                    _buildManagerWidget(),
                   ],
                 ),
               ),
@@ -81,18 +45,171 @@ class RemoteControlDialog extends StatelessWidget {
     );
   }
 
+  Widget _buildDirectionWidget() {
+    return Container(
+      height: 280,
+      width: 280,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(150),
+      ),
+      child: Column(
+        children: [
+          buildDirectionView(
+            width: 80,
+            height: 80,
+            icon: Icons.keyboard_arrow_up,
+            radius: BorderRadius.circular(80),
+            onTap: () {
+              _onTapKey(KeyCode.dpadUp);
+            },
+          ),
+          Expanded(
+            child: Row(
+              children: [
+                buildDirectionView(
+                  width: 80,
+                  height: 80,
+                  radius: BorderRadius.circular(80),
+                  icon: Icons.keyboard_arrow_left,
+                  onTap: () {
+                    _onTapKey(KeyCode.dpadLeft);
+                  },
+                ),
+                buildOKButton(),
+                buildDirectionView(
+                  width: 80,
+                  height: 80,
+                  radius: BorderRadius.circular(80),
+                  icon: Icons.keyboard_arrow_right,
+                  onTap: () {
+                    _onTapKey(KeyCode.dpadRight);
+                  },
+                ),
+              ],
+            ),
+          ),
+          buildDirectionView(
+            width: 80,
+            height: 80,
+            radius: BorderRadius.circular(80),
+            icon: Icons.keyboard_arrow_down,
+            onTap: () {
+              _onTapKey(KeyCode.dpadDown);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVolumeWidget() {
+    return Container(
+      width: 250,
+      height: 60,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(60),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: buildDirectionView(
+              width: 100,
+              height: 60,
+              radius: BorderRadius.circular(60),
+              icon: Icons.volume_down,
+              onTap: () {
+                _onTapKey(KeyCode.volumeDown);
+              },
+            ),
+          ),
+          Expanded(
+            child: buildDirectionView(
+              width: 100,
+              height: 60,
+              radius: BorderRadius.circular(60),
+              icon: Icons.volume_up,
+              onTap: () {
+                _onTapKey(KeyCode.volumeUp);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildManagerWidget() {
+    return SizedBox(
+      height: 100,
+      width: 250,
+      child: Row(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(60),
+            ),
+            child: buildDirectionView(
+              width: 60,
+              height: 60,
+              radius: BorderRadius.circular(60),
+              icon: Icons.arrow_back,
+              onTap: () {
+                _onTapKey(KeyCode.back);
+              },
+            ),
+          ),
+          const Spacer(),
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(60),
+            ),
+            child: buildDirectionView(
+              width: 60,
+              height: 60,
+              radius: BorderRadius.circular(60),
+              icon: Icons.home,
+              onTap: () {
+                _onTapKey(KeyCode.home);
+              },
+            ),
+          ),
+          const Spacer(),
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(60),
+            ),
+            child: buildDirectionView(
+              width: 60,
+              height: 60,
+              radius: BorderRadius.circular(60),
+              icon: Icons.menu,
+              onTap: () {
+                _onTapKey(KeyCode.menu);
+              },
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
   void keyboardListener(event) {
     if (event.runtimeType == RawKeyUpEvent) {
       if (event.physicalKey == PhysicalKeyboardKey.arrowUp) {
-        onTapUp?.call();
+        _onTapKey(KeyCode.dpadUp);
       } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown) {
-        onTapDown?.call();
+        _onTapKey(KeyCode.dpadDown);
       } else if (event.physicalKey == PhysicalKeyboardKey.arrowLeft) {
-        onTapLeft?.call();
+        _onTapKey(KeyCode.dpadLeft);
       } else if (event.physicalKey == PhysicalKeyboardKey.arrowRight) {
-        onTapRight?.call();
+        _onTapKey(KeyCode.dpadRight);
       } else if (event.physicalKey == PhysicalKeyboardKey.enter) {
-        onTapOk?.call();
+        _onTapKey(KeyCode.dpadCenter);
       }
     }
   }
@@ -118,14 +235,15 @@ class RemoteControlDialog extends StatelessWidget {
   Widget buildOKButton() {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(15),
         decoration: BoxDecoration(
-          color: Colors.white,
           border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(100),
+          borderRadius: BorderRadius.circular(120),
         ),
         child: InkWell(
-          onTap: onTapOk,
+          onTap: () {
+            _onTapKey(KeyCode.dpadCenter);
+          },
+          borderRadius: BorderRadius.circular(120),
           child: Container(
             height: double.infinity,
             width: double.infinity,
@@ -144,13 +262,11 @@ class RemoteControlDialog extends StatelessWidget {
     required double width,
     required double height,
     required IconData icon,
+    required BorderRadius radius,
     GestureTapCallback? onTap,
   }) {
     return InkWell(
-      focusColor: Colors.transparent,
-      hoverColor: Colors.transparent,
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
+      borderRadius: radius,
       onTap: onTap,
       child: SizedBox(
         height: height,
@@ -161,5 +277,9 @@ class RemoteControlDialog extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _onTapKey(KeyCode keyCode) {
+    onTap?.call(keyCode);
   }
 }

@@ -1,5 +1,6 @@
 import 'package:android_tool/page/common/app.dart';
 import 'package:android_tool/page/common/base_view_model.dart';
+import 'package:android_tool/page/common/key_code.dart';
 import 'package:android_tool/page/common/package_help_mixin.dart';
 import 'package:android_tool/widget/input_dialog.dart';
 import 'package:android_tool/widget/list_filter_dialog.dart';
@@ -725,63 +726,15 @@ class FeatureViewModel extends BaseViewModel with PackageHelpMixin {
     ]);
   }
 
-  /// 遥控器按键上
-  void pressRemoteUp() async {
+  /// 遥控器按键事件
+  void pressRemoteKey(KeyCode keyCode) async {
     await execAdb([
       '-s',
       deviceId,
       'shell',
       'input',
       'keyevent',
-      '19',
-    ]);
-  }
-
-  /// 遥控器按键下
-  void pressRemoteDown() async {
-    await execAdb([
-      '-s',
-      deviceId,
-      'shell',
-      'input',
-      'keyevent',
-      '20',
-    ]);
-  }
-
-  /// 遥控器按键左
-  void pressRemoteLeft() async {
-    await execAdb([
-      '-s',
-      deviceId,
-      'shell',
-      'input',
-      'keyevent',
-      '21',
-    ]);
-  }
-
-  /// 遥控器按键右
-  void pressRemoteRight() async {
-    await execAdb([
-      '-s',
-      deviceId,
-      'shell',
-      'input',
-      'keyevent',
-      '22',
-    ]);
-  }
-
-  /// 遥控器按键OK
-  void pressRemoteOk() async {
-    await execAdb([
-      '-s',
-      deviceId,
-      'shell',
-      'input',
-      'keyevent',
-      '23',
+      keyCode.value.toString(),
     ]);
   }
 
@@ -794,11 +747,7 @@ class FeatureViewModel extends BaseViewModel with PackageHelpMixin {
       context: context,
       builder: (BuildContext context) {
         return RemoteControlDialog(
-          onTapLeft: pressRemoteLeft,
-          onTapRight: pressRemoteRight,
-          onTapUp: pressRemoteUp,
-          onTapDown: pressRemoteDown,
-          onTapOk: pressRemoteOk,
+          onTap: pressRemoteKey,
         );
       },
     );

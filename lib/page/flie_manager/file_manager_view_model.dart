@@ -44,7 +44,7 @@ class FileManagerViewModel extends BaseViewModel {
 
   getFileList() async {
     var result =
-        await execAdb(["-s", deviceId, "shell", "ls", "-F", currentPath]);
+        await execAdb(["-s", deviceId, "shell", "ls", "-FA", currentPath]);
     if (result == null) return;
     files.value = [];
     for (var value in result.outLines) {

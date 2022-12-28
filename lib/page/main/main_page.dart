@@ -84,8 +84,7 @@ class _MainPageState extends BasePage<MainPage, MainViewModel> {
     } else if (value == 2) {
       return FileManagerPage(viewModel.deviceId);
     } else if (value == 3) {
-      return AndroidLogPage(
-          deviceId: viewModel.deviceId);
+      return AndroidLogPage(deviceId: viewModel.deviceId);
     } else if (value == 4) {
       return AdbSettingDialog(viewModel.adbPath);
     } else {
@@ -100,7 +99,7 @@ class _MainPageState extends BasePage<MainPage, MainViewModel> {
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
         onTap: () {
-         viewModel.onLeftItemClick(index);
+          viewModel.onLeftItemClick(index);
         },
         child: Container(
           decoration: BoxDecoration(
@@ -108,7 +107,6 @@ class _MainPageState extends BasePage<MainPage, MainViewModel> {
             color: index == viewModel.selectedIndex
                 ? Colors.blue.withOpacity(0.32)
                 : Colors.transparent,
-
           ),
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
           child: Row(
@@ -145,7 +143,7 @@ class _MainPageState extends BasePage<MainPage, MainViewModel> {
                 ),
                 child: Text(
                   device?.itemTitle ?? "未连接设备",
-                  overflow: TextOverflow.ellipsis,
+                  overflow: TextOverflow.visible,
                   style: const TextStyle(
                     color: Color(0xFF666666),
                     fontSize: 12,
